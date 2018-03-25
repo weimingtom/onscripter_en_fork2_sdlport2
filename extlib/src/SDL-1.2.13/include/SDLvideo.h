@@ -97,6 +97,8 @@ typedef struct {
 //	Uint32 UnusedBits3  :16;
 //	Uint32 video_mem;	/* The total amount of video memory (in K) */
 	SDL_PixelFormat *vfmt;	/* Value: The format of the video surface */
+	int    current_w;	//FIXME:not implemented
+	int    current_h;	//FIXME:not implemented
 } SDL_VideoInfo;
 
 
@@ -224,9 +226,59 @@ typedef struct SDL_SysWMinfo {
 	(X)->patch = SDL_PATCHLEVEL;					\
 }
 
+
+
+
 extern int SDL_GetWMInfo(SDL_SysWMinfo *info);
 
 extern void SDL_UpdateRect(SDL_Surface *screen, Sint32 x, Sint32 y, Uint32 w, Uint32 h);
+
+extern void SDL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask);
+
+//	int    current_w;	//FIXME:not implemented
+//	int    current_h;	//FIXME:not implemented
+//} SDL_VideoInfo;
+
+extern int SDL_CDNumDrives(void);
+
+extern SDL_CD * SDL_CDOpen(int drive);
+
+extern void SDL_CDClose(SDL_CD *cdrom);
+
+#define CD_INDRIVE(status)	((int)(status) > 0)
+
+extern void SDL_UpdateRects(SDL_Surface *screen, int numrects, SDL_Rect *rects);
+
+extern void SDL_PumpEvents(void);
+
+
+
+
+#define SDL_VERSIONNUM(X, Y, Z)						\
+	((X)*1000 + (Y)*100 + (Z))
+
+/* This is the version number macro for the current SDL version */
+#define SDL_COMPILEDVERSION \
+	SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL)
+
+#define SDL_VERSION_ATLEAST(X, Y, Z) \
+	(SDL_COMPILEDVERSION >= SDL_VERSIONNUM(X, Y, Z))
+
+
+extern char * SDL_strrchr(const char *string, int c);
+
+extern size_t SDL_strlen(const char *string);
+
+#define SDL_stack_alloc(type, count)    (type*)malloc(sizeof(type)*(count))
+#define SDL_stack_free(data)            free(data)
+
+extern size_t SDL_strlcpy(char *dst, const char *src, size_t maxlen);
+
+extern size_t SDL_strlcat(char *dst, const char *src, size_t maxlen);
+
+#define SDL_arraysize(array)	(sizeof(array)/sizeof(array[0]))
+
+extern void SDL_SetModuleHandle(void *hInst);
 
 #ifdef __cplusplus
 }

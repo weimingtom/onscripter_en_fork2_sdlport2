@@ -447,3 +447,64 @@ void SDL_UpdateRect(SDL_Surface *screen, Sint32 x, Sint32 y, Uint32 w, Uint32 h)
 {
 	assert(0);
 }
+
+void SDL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask)
+{
+	assert(0);
+}
+
+int SDL_CDNumDrives(void)
+{
+	assert(0);
+	return 0;
+}
+
+SDL_CD * SDL_CDOpen(int drive)
+{
+	assert(0);
+	return NULL;
+}
+
+void SDL_CDClose(SDL_CD *cdrom)
+{
+	assert(0);
+}
+
+void SDL_UpdateRects(SDL_Surface *screen, int numrects, SDL_Rect *rects)
+{
+	assert(0);
+}
+
+void SDL_PumpEvents(void)
+{
+	assert(0);
+}
+
+char * SDL_strrchr(const char *string, int c)
+{
+	assert(0);
+	return NULL;
+}
+
+size_t SDL_strlen(const char *string)
+{
+	assert(0);
+	return 0;
+}
+
+size_t SDL_strlcpy(char *dst, const char *src, size_t maxlen)
+{
+	assert(0);
+	return 0;
+}
+
+size_t SDL_strlcat(char *dst, const char *src, size_t maxlen)
+{
+	assert(0);
+	return 0;
+}
+
+void SDL_SetModuleHandle(void *hInst)
+{
+	assert(0);
+}

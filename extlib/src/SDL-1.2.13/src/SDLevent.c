@@ -93,3 +93,15 @@ int SDL_EnableUNICODE(int enable)
 	assert(0);
 	return 0;
 }
+
+int SDL_PeepEvents(SDL_Event *events, int numevents, SDL_eventaction action, Uint32 mask)
+{
+	assert(0);
+	return 0;
+}
+
+int SDL_WaitEvent(SDL_Event *event)
+{
+	assert(0);
+	return 0;
+}

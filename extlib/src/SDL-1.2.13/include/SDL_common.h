@@ -1,9 +1,12 @@
 #pragma once
 
+#define IS_LIB 1
+
 #include	<stdlib.h>
 #include	<windows.h>
 #include	<stdio.h>
 #include	<stddef.h>
+#include    <assert.h>
 
 #ifdef __cplusplus
 extern "C" {

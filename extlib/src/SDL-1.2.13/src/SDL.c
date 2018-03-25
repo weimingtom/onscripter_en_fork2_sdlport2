@@ -335,6 +335,8 @@ static void sdlterm(void) {
 }
 
 
+#if !IS_LIB
+
 int main(int argc, char **argv) {
 
 	int		r;
@@ -388,6 +390,8 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 {
 	main(__argc, __argv); 
 }
+
+#endif
 
 
 int SDL_Init(Uint32 flags)

@@ -13,23 +13,23 @@ enum {
 
 enum {
 	SDL_NOEVENT = 0,
-//	SDL_ACTIVEEVENT,
+	SDL_ACTIVEEVENT, //FIXME:not implemented
 	SDL_KEYDOWN,
 	SDL_KEYUP,
 	SDL_MOUSEMOTION,
 	SDL_MOUSEBUTTONDOWN,
 	SDL_MOUSEBUTTONUP,
-//	SDL_JOYAXISMOTION,
-//	SDL_JOYBALLMOTION,
-//	SDL_JOYHATMOTION,
-//	SDL_JOYBUTTONDOWN,
-//	SDL_JOYBUTTONUP,
+	SDL_JOYAXISMOTION, //FIXME:not implemented
+	SDL_JOYBALLMOTION, //FIXME:not implemented
+	SDL_JOYHATMOTION, //FIXME:not implemented
+	SDL_JOYBUTTONDOWN, //FIXME:not implemented
+	SDL_JOYBUTTONUP, //FIXME:not implemented
 	SDL_QUIT,
 //	SDL_SYSWMEVENT,
 //	SDL_EVENT_RESERVEDA,
 //	SDL_EVENT_RESERVEDB,
 //	SDL_VIDEORESIZE,
-//	SDL_VIDEOEXPOSE,
+	SDL_VIDEOEXPOSE, //FIXME:not implemented
 //	SDL_EVENT_RESERVED2,
 //	SDL_EVENT_RESERVED3,
 //	SDL_EVENT_RESERVED4,
@@ -241,17 +241,60 @@ typedef struct SDL_UserEvent {
 	void *data2;	/* User defined data pointer */
 } SDL_UserEvent;
 
+//FIXME:not implemented
+typedef struct SDL_JoyAxisEvent {
+	Uint8 type;	/* SDL_JOYAXISMOTION */
+	Uint8 which;	/* The joystick device index */
+	Uint8 axis;	/* The joystick axis index */
+	Sint16 value;	/* The axis value (range: -32768 to 32767) */
+} SDL_JoyAxisEvent;
+
+//FIXME:not implemented
+typedef struct SDL_JoyButtonEvent {
+	Uint8 type;	/* SDL_JOYBUTTONDOWN or SDL_JOYBUTTONUP */
+	Uint8 which;	/* The joystick device index */
+	Uint8 button;	/* The joystick button index */
+	Uint8 state;	/* SDL_PRESSED or SDL_RELEASED */
+} SDL_JoyButtonEvent;
+
+//FIXME:not implemented
+typedef struct SDL_ActiveEvent {
+	Uint8 type;	/* SDL_ACTIVEEVENT */
+	Uint8 gain;	/* Whether given states were gained or lost (1/0) */
+	Uint8 state;	/* A mask of the focus states */
+} SDL_ActiveEvent;
+
 typedef union {
 	BYTE					type;
 	SDL_KeyboardEvent		key;
 	SDL_MouseMotionEvent	motion;
 	SDL_MouseButtonEvent	button;
 	SDL_UserEvent user; //FIXME:not implemented
+	SDL_JoyButtonEvent jbutton; //FIXME:not implemented
+	SDL_JoyAxisEvent jaxis;  //FIXME:not implemented
+	SDL_ActiveEvent active; //FIXME:not implemented
 } SDL_Event;
 
 int SDL_PushEvent(SDL_Event *event);
 int SDL_PollEvent(SDL_Event *event);
 BYTE SDL_GetMouseState(int *x, int *y);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //dummy
@@ -264,14 +307,77 @@ typedef Uint32 (*SDL_NewTimerCallback)(Uint32 interval, void *param);
 extern SDL_TimerID SDL_AddTimer(Uint32 interval, SDL_NewTimerCallback callback, void *param);
 extern SDL_bool SDL_RemoveTimer(SDL_TimerID t);
 
-
 //	SDL_UserEvent user; //FIXME:not implemented
+//	SDL_JoyButtonEvent jbutton; //FIXME:not implemented
+//	SDL_JoyAxisEvent jaxis;  //FIXME:not implemented
+//	SDL_ActiveEvent active; //FIXME:not implemented
 //} SDL_Event;
 //	Uint16	unicode; //FIXME: not implemented
 //} SDL_keysym;
 
 extern void SDL_Delay(Uint32 ms);
 extern int SDL_EnableUNICODE(int enable);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Predefined event masks */
+#define SDL_EVENTMASK(X)	(1<<(X))
+typedef enum {
+	SDL_QUITMASK		= SDL_EVENTMASK(SDL_QUIT),
+} SDL_EventMask ;
+#define SDL_ALLEVENTS		0xFFFFFFFF
+
+typedef enum {
+	SDL_ADDEVENT,
+	SDL_PEEKEVENT,
+	SDL_GETEVENT
+} SDL_eventaction;
+extern int SDL_PeepEvents(SDL_Event *events, int numevents, SDL_eventaction action, Uint32 mask);
+
+
+
+
+#define SDL_BUTTON(X)		(1 << ((X)-1))
+#define SDL_BUTTON_LEFT		1
+#define SDL_BUTTON_MIDDLE	2
+#define SDL_BUTTON_RIGHT	3
+#define SDL_BUTTON_WHEELUP	4
+#define SDL_BUTTON_WHEELDOWN	5
+#define SDL_BUTTON_X1		6
+#define SDL_BUTTON_X2		7
+#define SDL_BUTTON_LMASK	SDL_BUTTON(SDL_BUTTON_LEFT)
+#define SDL_BUTTON_MMASK	SDL_BUTTON(SDL_BUTTON_MIDDLE)
+#define SDL_BUTTON_RMASK	SDL_BUTTON(SDL_BUTTON_RIGHT)
+#define SDL_BUTTON_X1MASK	SDL_BUTTON(SDL_BUTTON_X1)
+#define SDL_BUTTON_X2MASK	SDL_BUTTON(SDL_BUTTON_X2)
+
+
+
+extern int SDL_WaitEvent(SDL_Event *event);
+
+//enum {
+//	SDL_ACTIVEEVENT, //FIXME:not implemented
+//	SDL_JOYAXISMOTION, //FIXME:not implemented
+//  SDL_JOYBALLMOTION, //FIXME:not implemented
+//	SDL_JOYHATMOTION, //FIXME:not implemented
+//	SDL_JOYBUTTONDOWN, //FIXME:not implemented
+//	SDL_JOYBUTTONUP, //FIXME:not implemented
+//	SDL_VIDEOEXPOSE, //FIXME:not implemented
+
 
 #ifdef __cplusplus
 }

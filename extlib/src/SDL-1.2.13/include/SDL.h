@@ -23,6 +23,10 @@ DWORD SDL_GetTicks(void);
 
 extern int SDL_main(int argc, char **argv);
 
+#if IS_LIB
+#define main SDL_main
+#endif
+
 int SDL_InitSubSystem(DWORD flags);
 void SDL_Quit(void);
 char *SDL_GetError(void);
