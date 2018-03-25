@@ -64,7 +64,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MTd /w /W0 /Gm /GX /ZI /Od /I "..\..\..\extlib\src\SDL-1.2.13\include" /I "." /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D DECLSPEC="" /YX /FD /GZ /c
+# ADD CPP /nologo /MTd /w /W0 /Gm /GX /ZI /Od /I "..\..\..\extlib\src\SDL-1.2.13\include" /I "." /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D DECLSPEC="" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x804 /d "_DEBUG"
 # ADD RSC /l 0x804 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -89,7 +89,23 @@ SOURCE="..\..\..\extlib\src\SDL-1.2.13\include\SDL.h"
 # End Source File
 # Begin Source File
 
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\include\SDL_common.h"
+# End Source File
+# Begin Source File
+
 SOURCE="..\..\..\extlib\src\SDL-1.2.13\include\SDL_image.h"
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\include\SDL_main.h"
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\include\SDL_syswm.h"
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\include\SDL_ttf.h"
 # End Source File
 # Begin Source File
 
@@ -110,6 +126,10 @@ SOURCE="..\..\..\extlib\src\SDL-1.2.13\src\SDL.c"
 # Begin Source File
 
 SOURCE="..\..\..\extlib\src\SDL-1.2.13\src\SDL_image.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\src\SDL_ttf.c"
 # End Source File
 # Begin Source File
 

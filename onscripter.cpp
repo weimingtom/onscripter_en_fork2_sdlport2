@@ -421,4 +421,5 @@ int main( int argc, char **argv )
     ons.executeLabel();
     
     exit(0);
+	return 0;
 }

@@ -80,10 +80,10 @@ extern bool ext_music_play_once_flag;
 extern "C"{
     extern void mp3callback( void *userdata, Uint8 *stream, int len );
     extern void oggcallback( void *userdata, Uint8 *stream, int len );
-    extern Uint32 SDLCALL cdaudioCallback( Uint32 interval, void *param );
-    extern Uint32 SDLCALL silentmovieCallback( Uint32 interval, void *param );
+    extern Uint32 cdaudioCallback( Uint32 interval, void *param );
+    extern Uint32 silentmovieCallback( Uint32 interval, void *param );
 #if defined(MACOSX) //insani
-    extern Uint32 SDLCALL seqmusicSDLCallback( Uint32 interval, void *param );
+    extern Uint32 seqmusicSDLCallback( Uint32 interval, void *param );
 #endif
 }
 extern void seqmusicCallback( int sig );

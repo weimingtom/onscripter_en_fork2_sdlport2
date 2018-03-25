@@ -1,31 +1,9 @@
 #pragma once
 
-#include	<windows.h>
-#include	<stdio.h>
-#include	<stddef.h>
+#include	"SDL_common.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-
-#if 0
-#ifndef __GNUC__
-typedef	signed int			SINT;
-typedef	signed char			SINT8;
-typedef	unsigned char		UINT8;
-typedef	signed short		SINT16;
-typedef	unsigned short		UINT16;
-typedef	signed int			SINT32;
-typedef	unsigned int		UINT32;
-#else
-#include	<stdlib.h>
-typedef	signed char			SINT8;
-typedef	unsigned char		UINT8;
-typedef	signed short		SINT16;
-typedef	unsigned short		UINT16;
-typedef	signed int			SINT32;
-#endif
 #endif
 
 enum {
@@ -218,7 +196,7 @@ typedef struct {
 //	BYTE	scancode;
 	SDLKey	sym;
 //	SDLMod	mod;
-//	WORD	unicode;
+	Uint16	unicode; //FIXME: not implemented
 } SDL_keysym;
 
 typedef struct {
@@ -255,16 +233,45 @@ typedef struct {
 	WORD	y;
 } SDL_MouseButtonEvent;
 
+//FIXME:not implemented
+typedef struct SDL_UserEvent {
+	Uint8 type;	/* SDL_USEREVENT through SDL_NUMEVENTS-1 */
+	int code;	/* User defined event code */
+	void *data1;	/* User defined data pointer */
+	void *data2;	/* User defined data pointer */
+} SDL_UserEvent;
+
 typedef union {
 	BYTE					type;
 	SDL_KeyboardEvent		key;
 	SDL_MouseMotionEvent	motion;
 	SDL_MouseButtonEvent	button;
+	SDL_UserEvent user; //FIXME:not implemented
 } SDL_Event;
 
 int SDL_PushEvent(SDL_Event *event);
 int SDL_PollEvent(SDL_Event *event);
 BYTE SDL_GetMouseState(int *x, int *y);
+
+
+//dummy
+typedef struct _SDL_TimerID {
+	int __;
+}*SDL_TimerID;
+
+typedef Uint32 (*SDL_NewTimerCallback)(Uint32 interval, void *param);
+
+extern SDL_TimerID SDL_AddTimer(Uint32 interval, SDL_NewTimerCallback callback, void *param);
+extern SDL_bool SDL_RemoveTimer(SDL_TimerID t);
+
+
+//	SDL_UserEvent user; //FIXME:not implemented
+//} SDL_Event;
+//	Uint16	unicode; //FIXME: not implemented
+//} SDL_keysym;
+
+extern void SDL_Delay(Uint32 ms);
+extern int SDL_EnableUNICODE(int enable);
 
 #ifdef __cplusplus
 }

@@ -1,8 +1,6 @@
 #pragma once
 
-#include	<windows.h>
-#include	<stdio.h>
-#include	<stddef.h>
+#include	"SDL_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,10 +33,10 @@ typedef struct SDL_PixelFormat {
 	SDL_Palette	*palette;
 	BYTE		BitsPerPixel;
 	BYTE		BytesPerPixel;
-//	BYTE		Rloss;
-//	BYTE		Gloss;
-//	BYTE		Bloss;
-//	BYTE		Aloss;
+	BYTE		Rloss; //FIXME:not implemented
+	BYTE		Gloss; //FIXME:not implemented
+	BYTE		Bloss; //FIXME:not implemented
+	BYTE		Aloss; //FIXME:not implemented
 	BYTE		Rshift;
 	BYTE		Gshift;
 	BYTE		Bshift;
@@ -49,14 +47,14 @@ typedef struct SDL_PixelFormat {
 	DWORD		Amask;
 
 	// RGB color key information
-//	DWORD		colorkey;
+	DWORD		colorkey; //FIXME:not implemented
 
 	// Alpha value information (per-surface alpha)
 //	BYTE		alpha;
 } SDL_PixelFormat;
 
 typedef struct SDL_Surface {
-//	Uint32	flags;
+	Uint32	flags; //FIXME:not implemented
 	SDL_PixelFormat *format;
 	int		w;
 	int		h;
@@ -126,6 +124,109 @@ typedef struct {
 	int w;
 	int h;
 } SDL_Rect;
+
+extern int SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color);
+extern Uint32 SDL_MapRGB(const SDL_PixelFormat * const format, const Uint8 r, const Uint8 g, const Uint8 b);
+extern int SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect);
+
+//dummy
+typedef struct {
+	int __;
+} SDL_RWops;
+
+extern void SDL_RWclose(SDL_RWops *ctx);
+
+extern SDL_Surface * SDL_ConvertSurface(SDL_Surface *src, SDL_PixelFormat *fmt, Uint32 flags);
+
+typedef struct SDL_AudioSpec {
+	int __;
+} SDL_AudioSpec;
+
+#define SDL_MAX_TRACKS	99
+
+typedef enum {
+	CD_TRAYEMPTY,
+	CD_STOPPED,
+	CD_PLAYING,
+	CD_PAUSED,
+	CD_ERROR = -1
+} CDstatus;
+
+typedef struct SDL_CDtrack {
+	Uint8 id;
+	Uint8 type;	
+	Uint16 unused;
+	Uint32 length;
+	Uint32 offset;
+} SDL_CDtrack;
+
+typedef struct SDL_CD {
+	SDL_CDtrack track[SDL_MAX_TRACKS+1];
+} SDL_CD;
+
+extern int SDL_CDPlayTracks(SDL_CD *cdrom, int start_track, int start_frame, int ntracks, int nframes);
+extern CDstatus SDL_CDStatus(SDL_CD *cdrom);
+extern int SDL_CDStop(SDL_CD *cdrom);
+
+typedef struct SDL_AudioCVT {
+	Uint8 *buf;
+} SDL_AudioCVT;
+
+extern void SDL_WarpMouse(Uint16 x, Uint16 y);
+
+//typedef struct SDL_Surface {
+//	Uint32	flags; //FIXME:not implemented
+//typedef struct SDL_PixelFormat {
+//	BYTE		Rloss; //FIXME:not implemented
+//	BYTE		Gloss; //FIXME:not implemented
+//	BYTE		Bloss; //FIXME:not implemented
+//	BYTE		Aloss; //FIXME:not implemented
+//	DWORD		colorkey; //FIXME:not implemented
+
+#define SDL_SRCCOLORKEY	0x00001000	/* Blit uses a source color key */
+
+extern Uint32 SDL_MapRGBA(const SDL_PixelFormat * const format, const Uint8 r, const Uint8 g, const Uint8 b, const Uint8 a);
+
+extern SDL_RWops * SDL_RWFromMem(void *mem, int size);
+
+extern int SDL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha);
+
+#define SDL_ALPHA_OPAQUE 255
+
+extern int SDL_SaveBMP(SDL_Surface *surface, const char *file);
+
+#define SDL_DISABLE	 0
+#define SDL_ENABLE	 1
+extern int SDL_ShowCursor(int toggle);
+
+extern int SDL_WM_IconifyWindow(void);
+
+
+#define SDL_MAJOR_VERSION	1
+#define SDL_MINOR_VERSION	2
+#define SDL_PATCHLEVEL		13
+
+typedef struct SDL_version {
+	Uint8 major;
+	Uint8 minor;
+	Uint8 patch;
+} SDL_version;
+
+typedef struct SDL_SysWMinfo {
+	SDL_version version;
+	HWND window;
+} SDL_SysWMinfo;
+
+#define SDL_VERSION(X)							\
+{									\
+	(X)->major = SDL_MAJOR_VERSION;					\
+	(X)->minor = SDL_MINOR_VERSION;					\
+	(X)->patch = SDL_PATCHLEVEL;					\
+}
+
+extern int SDL_GetWMInfo(SDL_SysWMinfo *info);
+
+extern void SDL_UpdateRect(SDL_Surface *screen, Sint32 x, Sint32 y, Uint32 w, Uint32 h);
 
 #ifdef __cplusplus
 }

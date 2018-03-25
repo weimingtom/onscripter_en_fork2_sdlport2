@@ -80,7 +80,7 @@
 #define CONTINUOUS_PLAY
 
 extern SDL_TimerID timer_bgmfade_id;
-extern "C" Uint32 SDLCALL bgmfadeCallback( Uint32 interval, void *param );
+extern "C" Uint32 bgmfadeCallback( Uint32 interval, void *param );
 
 int ONScripterLabel::yesnoboxCommand()
 {

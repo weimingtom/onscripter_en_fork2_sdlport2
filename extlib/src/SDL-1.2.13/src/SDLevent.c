@@ -69,3 +69,27 @@ BYTE SDL_GetMouseState(int *x, int *y) {
 	return(0);
 }
 
+
+
+SDL_TimerID SDL_AddTimer(Uint32 interval, SDL_NewTimerCallback callback, void *param)
+{
+	assert(0);
+	return NULL;
+}
+
+SDL_bool SDL_RemoveTimer(SDL_TimerID t)
+{
+	assert(0);
+	return 0;
+}
+
+void SDL_Delay(Uint32 ms)
+{
+	assert(0);
+}
+
+int SDL_EnableUNICODE(int enable)
+{
+	assert(0);
+	return 0;
+}

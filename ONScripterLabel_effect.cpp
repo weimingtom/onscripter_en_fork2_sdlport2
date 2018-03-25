@@ -941,10 +941,10 @@ void ONScripterLabel::buildBreakupCellforms()
     int h = BREAKUP_CELLWIDTH;
     breakup_cellforms = new bool[w*h];
 
-    for (int n=0, rad2=1; n<BREAKUP_CELLFORMS; n++, rad2=(n+1)*(n+1)) {
+    for (int n=0, rad2_=1; n<BREAKUP_CELLFORMS; n++, rad2_=(n+1)*(n+1)) {
         for (int x=0, xd=-BREAKUP_CELLWIDTH/2; x<BREAKUP_CELLWIDTH; x++, xd++) {
             for (int y=0, yd=-BREAKUP_CELLWIDTH/2; y<BREAKUP_CELLWIDTH; y++, yd++) {
-                if (((xd * xd + xd + yd * yd + yd)*2 + 1) < 2*rad2)
+                if (((xd * xd + xd + yd * yd + yd)*2 + 1) < 2*rad2_)
                     breakup_cellforms[y*w + n*BREAKUP_CELLWIDTH + x] = true;
                 else
                     breakup_cellforms[y*w + n*BREAKUP_CELLWIDTH + x] = false;

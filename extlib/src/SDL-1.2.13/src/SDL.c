@@ -388,3 +388,10 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 {
 	main(__argc, __argv); 
 }
+
+
+int SDL_Init(Uint32 flags)
+{
+	assert(0);
+	return 0;
+}

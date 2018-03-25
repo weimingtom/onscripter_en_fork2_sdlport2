@@ -348,3 +348,102 @@ int SDL_Flip(SDL_Surface *screen) {
 	return(0);
 }
 
+
+int SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color)
+{
+	assert(0);
+	return 0;
+}
+
+Uint32 SDL_MapRGB(const SDL_PixelFormat * const format, const Uint8 r, const Uint8 g, const Uint8 b)
+{
+	assert(0);
+	return 0;
+}
+
+int SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect)
+{
+	assert(0);
+	return 0;
+}
+
+SDL_RWops * SDL_RWFromMem(void *mem, int size)
+{
+	assert(0);
+	return NULL;
+}
+
+SDL_Surface * SDL_ConvertSurface(SDL_Surface *src, SDL_PixelFormat *fmt, Uint32 flags)
+{
+	assert(0);
+	return NULL;
+}
+
+int SDL_CDPlayTracks(SDL_CD *cdrom, int start_track, int start_frame, int ntracks, int nframes)
+{
+	assert(0);
+	return 0;
+}
+
+CDstatus SDL_CDStatus(SDL_CD *cdrom)
+{
+	assert(0);
+	return 0;
+}
+
+int SDL_CDStop(SDL_CD *cdrom)
+{
+	assert(0);
+	return 0;
+}
+
+void SDL_WarpMouse(Uint16 x, Uint16 y)
+{
+	assert(0);
+}
+
+Uint32 SDL_MapRGBA(const SDL_PixelFormat * const format, const Uint8 r, const Uint8 g, const Uint8 b, const Uint8 a)
+{
+	assert(0);
+	return 0;
+}
+
+void SDL_RWclose(SDL_RWops *ctx)
+{
+	assert(0);
+}
+
+int SDL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
+{
+	assert(0);
+	return 0;
+}
+
+int SDL_SaveBMP(SDL_Surface *surface, const char *file)
+{
+	assert(0);
+	return 0;
+}
+
+int SDL_ShowCursor(int toggle)
+{
+	assert(0);
+	return 0;
+}
+
+int SDL_WM_IconifyWindow(void)
+{
+	assert(0);
+	return 0;
+}
+
+int SDL_GetWMInfo(SDL_SysWMinfo *info)
+{
+	assert(0);
+	return 0;
+}
+
+void SDL_UpdateRect(SDL_Surface *screen, Sint32 x, Sint32 y, Uint32 w, Uint32 h)
+{
+	assert(0);
+}

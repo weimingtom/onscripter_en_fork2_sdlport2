@@ -105,7 +105,7 @@ extern "C" void oggcallback( void *userdata, Uint8 *stream, int len )
     }
 }
 
-extern "C" Uint32 SDLCALL animCallback( Uint32 interval, void *param )
+extern "C" Uint32 animCallback( Uint32 interval, void *param )
 {
     clearTimer( anim_timer_id );
 
@@ -116,7 +116,7 @@ extern "C" Uint32 SDLCALL animCallback( Uint32 interval, void *param )
     return 0;
 }
 
-extern "C" Uint32 SDLCALL breakCallback(Uint32 interval, void *param)
+extern "C" Uint32 breakCallback(Uint32 interval, void *param)
 {
     clearTimer(break_id);
 
@@ -127,7 +127,7 @@ extern "C" Uint32 SDLCALL breakCallback(Uint32 interval, void *param)
     return 0;
 }
 
-extern "C" Uint32 SDLCALL timerCallback( Uint32 interval, void *param )
+extern "C" Uint32 timerCallback( Uint32 interval, void *param )
 {
     clearTimer( timer_id );
 
@@ -149,7 +149,7 @@ extern "C" Uint32 cdaudioCallback( Uint32 interval, void *param )
     return 0;
 }
 
-extern "C" Uint32 SDLCALL bgmfadeCallback( Uint32 interval, void *param )
+extern "C" Uint32 bgmfadeCallback( Uint32 interval, void *param )
 {
     SDL_Event event;
     event.type = ONS_BGMFADE_EVENT;
@@ -159,7 +159,7 @@ extern "C" Uint32 SDLCALL bgmfadeCallback( Uint32 interval, void *param )
     return interval;
 }
 
-extern "C" Uint32 SDLCALL silentmovieCallback( Uint32 interval, void *param )
+extern "C" Uint32 silentmovieCallback( Uint32 interval, void *param )
 {
 	if (1) {
         clearTimer( timer_silentmovie_id );
