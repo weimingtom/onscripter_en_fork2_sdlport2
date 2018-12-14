@@ -1,5 +1,7 @@
 #pragma once
 
+//TODO:
+//0:Test; 1:Normal embed
 #define IS_LIB 1
 
 #include	<stdlib.h>
@@ -23,6 +25,15 @@ typedef enum SDL_bool {
 	SDL_FALSE = 0,
 	SDL_TRUE  = 1
 } SDL_bool;
+
+typedef enum {
+	SDL_ENOMEM,
+	SDL_EFREAD,
+	SDL_EFWRITE,
+	SDL_EFSEEK,
+	SDL_UNSUPPORTED,
+	SDL_LASTERROR
+} SDL_errorcode;
 
 #ifdef __cplusplus
 }

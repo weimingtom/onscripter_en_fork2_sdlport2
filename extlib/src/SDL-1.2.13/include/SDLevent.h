@@ -347,8 +347,7 @@ typedef enum {
 	SDL_GETEVENT
 } SDL_eventaction;
 extern int SDL_PeepEvents(SDL_Event *events, int numevents, SDL_eventaction action, Uint32 mask);
-
-
+extern void SDL_PumpEvents(void);
 
 
 #define SDL_BUTTON(X)		(1 << ((X)-1))

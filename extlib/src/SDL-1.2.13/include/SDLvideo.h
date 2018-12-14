@@ -133,7 +133,9 @@ extern int SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst
 
 //dummy
 typedef struct {
-	int __;
+	void *mem;
+	int size;
+	int pos;
 } SDL_RWops;
 
 extern void SDL_RWclose(SDL_RWops *ctx);
@@ -249,9 +251,6 @@ extern void SDL_CDClose(SDL_CD *cdrom);
 
 extern void SDL_UpdateRects(SDL_Surface *screen, int numrects, SDL_Rect *rects);
 
-extern void SDL_PumpEvents(void);
-
-
 
 
 #define SDL_VERSIONNUM(X, Y, Z)						\
@@ -279,6 +278,15 @@ extern size_t SDL_strlcat(char *dst, const char *src, size_t maxlen);
 #define SDL_arraysize(array)	(sizeof(array)/sizeof(array[0]))
 
 extern void SDL_SetModuleHandle(void *hInst);
+
+extern SDL_RWops *SDL_RWFromFile(const char *file, const char *mode);
+extern int SDL_RWseek(SDL_RWops *stream, long offset, int origin);
+extern long SDL_RWtell(SDL_RWops *stream);
+extern size_t SDL_RWread(void *buffer, size_t size, size_t count, SDL_RWops *stream);
+extern Uint32 SDL_Swap32(Uint32 x);
+extern Uint16 SDL_Swap16(Uint16 x);
+extern Uint16 SDL_ReadLE16(SDL_RWops *src);
+extern Uint32 SDL_ReadLE32(SDL_RWops *src);
 
 #ifdef __cplusplus
 }

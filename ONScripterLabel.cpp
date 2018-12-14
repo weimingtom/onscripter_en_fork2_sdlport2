@@ -1811,6 +1811,11 @@ int ONScripterLabel::parseLine( )
         snprintf(script_h.current_cmd, 64, "%s", s_buf);
         //Check against builtin cmds
         if (cmd[0] >= 'a' && cmd[0] <= 'z'){
+			//TODO:
+			char debugstr[256] = {0};
+			sprintf(debugstr, ">>>>>>>> %s\n", cmd); 
+			OutputDebugString(debugstr);
+
             FuncHash &fh = func_hash[cmd[0]-'a'];
             for (int i=fh.start ; i<=fh.end ; i++){
                 if ( !strcmp( func_lut[i].command, cmd ) ){

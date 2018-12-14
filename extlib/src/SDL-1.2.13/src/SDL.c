@@ -396,6 +396,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 int SDL_Init(Uint32 flags)
 {
-	assert(0);
+	//assert(0);
+	sdlinit();
 	return 0;
 }

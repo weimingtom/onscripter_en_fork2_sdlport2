@@ -171,6 +171,8 @@ static void cleanup_output(void)
 #endif
 }
 
+#if IS_LIB
+
 #if defined(_MSC_VER) && !defined(_WIN32_WCE)
 /* The VC++ compiler needs main defined */
 #define console_main main
@@ -376,3 +378,5 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 	/* Hush little compiler, don't you cry... */
 	return 0;
 }
+
+#endif

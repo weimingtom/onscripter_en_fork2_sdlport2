@@ -124,7 +124,7 @@ static SDL_Surface *cresurf_hw(DWORD flags, int width, int height,
 		*(DWORD *)(bi.bmiColors + 1) = 0x07e0;
 		*(DWORD *)(bi.bmiColors + 2) = 0x001f;
 	}
-	else if (depth == 24) {
+	else if (depth == 24 || depth == 32) {
 		bi.bmiHeader.biCompression = BI_RGB;
 	}
 	else {
@@ -162,7 +162,7 @@ static SDL_Surface *cresurf_hw(DWORD flags, int width, int height,
 		fmt->Gmask = 0x07e0;
 		fmt->Bmask = 0x001f;
 	}
-	else if (depth == 24) {
+	else if (depth == 24 || depth == 32) {
 		fmt->Rshift = 16;
 		fmt->Gshift = 8;
 		fmt->Bshift = 0;
@@ -363,14 +363,17 @@ Uint32 SDL_MapRGB(const SDL_PixelFormat * const format, const Uint8 r, const Uin
 
 int SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect)
 {
-	assert(0);
+	//TODO:
+	//assert(0);
 	return 0;
 }
 
 SDL_RWops * SDL_RWFromMem(void *mem, int size)
 {
-	assert(0);
-	return NULL;
+	SDL_RWops * ret = (SDL_RWops *)malloc(sizeof(SDL_RWops));
+	ret->mem = mem;
+	ret->size = size;
+	return ret;
 }
 
 SDL_Surface * SDL_ConvertSurface(SDL_Surface *src, SDL_PixelFormat *fmt, Uint32 flags)
@@ -410,12 +413,13 @@ Uint32 SDL_MapRGBA(const SDL_PixelFormat * const format, const Uint8 r, const Ui
 
 void SDL_RWclose(SDL_RWops *ctx)
 {
-	assert(0);
+	//assert(0);
+	free(ctx);
 }
 
 int SDL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
 {
-	assert(0);
+	//assert(0);
 	return 0;
 }
 
@@ -439,13 +443,16 @@ int SDL_WM_IconifyWindow(void)
 
 int SDL_GetWMInfo(SDL_SysWMinfo *info)
 {
-	assert(0);
+	//assert(0);
+	info->window = NULL;
+	SDL_VERSION(&(info->version));
 	return 0;
 }
 
 void SDL_UpdateRect(SDL_Surface *screen, Sint32 x, Sint32 y, Uint32 w, Uint32 h)
 {
-	assert(0);
+	//TODO:
+	//assert(0);
 }
 
 void SDL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask)
@@ -475,36 +482,155 @@ void SDL_UpdateRects(SDL_Surface *screen, int numrects, SDL_Rect *rects)
 	assert(0);
 }
 
-void SDL_PumpEvents(void)
-{
-	assert(0);
-}
-
 char * SDL_strrchr(const char *string, int c)
 {
-	assert(0);
-	return NULL;
+	return strrchr(string, c);
 }
 
 size_t SDL_strlen(const char *string)
 {
-	assert(0);
-	return 0;
+	return strlen(string);
 }
 
 size_t SDL_strlcpy(char *dst, const char *src, size_t maxlen)
 {
-	assert(0);
-	return 0;
+	size_t srclen = strlen(src);
+    if (maxlen > 0) {
+        size_t len = srclen < maxlen - 1 ? srclen : maxlen - 1;
+        memcpy(dst, src, len);
+        dst[len] = '\0';
+    }
+    return srclen;
 }
 
 size_t SDL_strlcat(char *dst, const char *src, size_t maxlen)
 {
-	assert(0);
-	return 0;
+    size_t dstlen = strlen(dst);
+    size_t srclen = strlen(src);
+    if (dstlen < maxlen) {
+        SDL_strlcpy(dst + dstlen, src, maxlen - dstlen);
+    }
+    return dstlen+srclen;
 }
 
+static void *g_hInst;
 void SDL_SetModuleHandle(void *hInst)
 {
-	assert(0);
+	g_hInst = hInst;
+	//assert(0);
 }
+
+SDL_RWops *SDL_RWFromFile(const char *file, const char *mode) 
+{
+	FILE *f = NULL;
+	SDL_RWops *src = NULL;
+
+	char *mem = NULL;
+	long size;
+
+	f = fopen(file, "rb");
+	if (f != NULL)
+	{
+		long pos;
+		pos = ftell(f);
+		fseek(f, 0, SEEK_END);
+		size = ftell(f);
+		fseek(f, pos, SEEK_SET);
+
+		mem = malloc(size);
+		fread(mem, size, 1, f);
+
+		fclose(f);
+	}
+	if (mem != NULL)
+	{
+		src = (SDL_RWops *)malloc(sizeof(SDL_RWops));
+		src->mem = mem;
+		src->size = (int)size;
+	}
+	return src;
+}
+
+extern int SDL_RWseek(SDL_RWops *stream, long offset, int origin)
+{
+	if (origin == SEEK_SET)
+	{
+		if (offset >= 0 && offset < stream->size)
+		{
+			stream->pos = offset;
+			return 0;
+		}
+	}
+	else if (origin == SEEK_CUR)
+	{
+		if (stream->pos + offset >= 0 && stream->pos + offset < stream->size)
+		{
+			stream->pos += offset;
+			return 0;
+		}
+	}
+	else if (origin == SEEK_END)
+	{
+		if (stream->size + offset >= 0 && stream->size + offset < stream->size)
+		{
+			stream->pos = stream->size + offset;
+		}
+	}
+	return -1;
+}
+
+long SDL_RWtell(SDL_RWops *stream)
+{
+	return stream->pos;
+}
+
+size_t SDL_RWread(void *buffer, size_t size, size_t count, SDL_RWops *stream)
+{
+	size_t len = size * count;
+	if (len + stream->pos > stream->size)
+	{
+		len = stream->size - stream->pos;
+	}
+	memcpy(buffer, (void *)((char *)stream->mem + stream->pos), len);
+	stream->pos += len;
+	return len;
+}
+
+Uint32 SDL_Swap32(Uint32 x) 
+{
+	return((x<<24)|((x<<8)&0x00FF0000)|((x>>8)&0x0000FF00)|(x>>24));
+}
+
+Uint16 SDL_Swap16(Uint16 x) 
+{
+	return((x<<8)|(x>>8));
+}
+
+static int is_little_endian(void)
+{
+  unsigned short flag=0x4321;
+  if (*(unsigned char*)&flag==0x21)
+    return 1;
+  else
+    return 0;
+}
+
+Uint16 SDL_ReadLE16 (SDL_RWops *src)
+{
+	Uint16 value;
+
+	SDL_RWread(src, &value, (sizeof value), 1);
+	//return(SDL_SwapLE16(value));
+	return is_little_endian() ? value : SDL_Swap16(value);
+}
+
+Uint32 SDL_ReadLE32 (SDL_RWops *src)
+{
+	Uint32 value;
+
+	SDL_RWread(src, &value, (sizeof value), 1);
+	//return(SDL_SwapLE32(value));
+	return is_little_endian() ? value : SDL_Swap32(value);
+}
+
+

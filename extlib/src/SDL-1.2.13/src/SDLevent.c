@@ -58,6 +58,32 @@ int SDL_PollEvent(SDL_Event *event) {
 	}
 }
 
+int SDL_PeepEvents(SDL_Event *events, int numevents, SDL_eventaction action, Uint32 mask)
+{
+	//assert(0);
+	int i;
+	for (i = 0; i < numevents; ++i)
+	{
+		int ret = SDL_PollEvent(&events[i]);
+		if (ret == 0) break;
+	}
+	return 0;
+}
+
+int SDL_WaitEvent(SDL_Event *event)
+{
+	//assert(0);
+	return 0;
+}
+
+void SDL_PumpEvents(void)
+{
+	//assert(0);
+}
+
+
+
+
 BYTE SDL_GetMouseState(int *x, int *y) {
 
 	if (x) {
@@ -73,7 +99,8 @@ BYTE SDL_GetMouseState(int *x, int *y) {
 
 SDL_TimerID SDL_AddTimer(Uint32 interval, SDL_NewTimerCallback callback, void *param)
 {
-	assert(0);
+	//TODO:
+	//assert(0);
 	return NULL;
 }
 
@@ -85,23 +112,12 @@ SDL_bool SDL_RemoveTimer(SDL_TimerID t)
 
 void SDL_Delay(Uint32 ms)
 {
-	assert(0);
+	//assert(0);
+	Sleep(ms);
 }
 
 int SDL_EnableUNICODE(int enable)
 {
-	assert(0);
-	return 0;
-}
-
-int SDL_PeepEvents(SDL_Event *events, int numevents, SDL_eventaction action, Uint32 mask)
-{
-	assert(0);
-	return 0;
-}
-
-int SDL_WaitEvent(SDL_Event *event)
-{
-	assert(0);
+	//assert(0);
 	return 0;
 }
