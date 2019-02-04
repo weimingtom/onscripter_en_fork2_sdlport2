@@ -16,7 +16,6 @@ static	UINT		eventc = 0;
 
 
 int SDL_PushEvent(SDL_Event *event) {
-
 	if (eventc < (sizeof(events)/sizeof(SDL_Event))) {
 		events[(eventp + eventc) % EVENT_MAX] = *event;
 		eventc++;
@@ -27,8 +26,7 @@ int SDL_PushEvent(SDL_Event *event) {
 	}
 }
 
-int SDL_PollEvent(SDL_Event *event) {
-
+static int __SDL_getEvent(SDL_Event *event, int isRemoved, int notRemovedIndex) {
 	MSG		msg;
 
 	if (__sdl_avail) {
@@ -46,28 +44,70 @@ int SDL_PollEvent(SDL_Event *event) {
 		}
 	}
 	if (eventc) {
-		eventc--;
-		if (event) {
-			*event = events[eventp];
+		if (isRemoved) {
+			eventc--;
+			if (event) {
+				*event = events[eventp];
+			}
+			eventp = (eventp + 1) % EVENT_MAX;
+			return(1);
+		} else {
+			if (notRemovedIndex >= 0 && notRemovedIndex < eventc) {
+				*event = events[(eventp + notRemovedIndex) % EVENT_MAX];
+				return(1);
+			} else {
+				//overflow
+				//assert(0);
+				return 0;
+			}
 		}
-		eventp = (eventp + 1) % EVENT_MAX;
-		return(1);
 	}
 	else {
 		return(0);
 	}
 }
 
+int SDL_PollEvent(SDL_Event *event) {
+	return __SDL_getEvent(event, 1, 0);
+}
+
+//https://wiki.libsdl.org/SDL_PeepEvents
+//FIXME:Returns the number of events actually stored or a negative error code on failure
 int SDL_PeepEvents(SDL_Event *events, int numevents, SDL_eventaction action, Uint32 mask)
 {
 	//assert(0);
-	int i;
-	for (i = 0; i < numevents; ++i)
-	{
-		int ret = SDL_PollEvent(&events[i]);
-		if (ret == 0) break;
+
+	if (action == SDL_PEEKEVENT) {
+		//will not be removed from the queue
+		if (mask == SDL_QUITMASK) {
+			//TODO: not implemented
+			return 0;
+		} else {
+			int used = 0;
+			int i;
+			for (i = 0; i < numevents; ++i) {
+				int ret = __SDL_getEvent(&events[i], 0, i);
+				if (ret == 0) break;
+				used++;
+			}
+			return 0;
+		}
+	} else if (action == SDL_GETEVENT) {
+		if (mask == SDL_ALLEVENTS) {
+			//will be removed from the queue
+			int used = 0;
+			int i;
+			for (i = 0; i < numevents; ++i) {
+				int ret = SDL_PollEvent(&events[i]);
+				if (ret == 0) break;
+				used++;
+			}
+			return used;
+		} else {
+			assert(0);
+			return 0;
+		}
 	}
-	return 0;
 }
 
 //???FIXME:
@@ -75,7 +115,17 @@ int SDL_PeepEvents(SDL_Event *events, int numevents, SDL_eventaction action, Uin
 int SDL_WaitEvent(SDL_Event *event)
 {
 	//assert(0);
-	return SDL_PollEvent(event);
+	//return SDL_PollEvent(event);
+
+	while ( 1 ) {
+		SDL_PumpEvents();
+		switch(SDL_PeepEvents(event, 1, SDL_GETEVENT, SDL_ALLEVENTS)) {
+		    case -1: return 0;
+		    case 1: return 1;
+		    case 0: SDL_Delay(10);
+		}
+	}
+	return 0;
 }
 
 //see sdl_peekevents
