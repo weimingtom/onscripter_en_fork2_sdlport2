@@ -298,11 +298,14 @@ BYTE SDL_GetMouseState(int *x, int *y);
 
 
 //dummy
-typedef struct _SDL_TimerID {
-	int __;
-}*SDL_TimerID;
-
 typedef Uint32 (*SDL_NewTimerCallback)(Uint32 interval, void *param);
+typedef struct _SDL_TimerID {
+	UINT_PTR idTimer;
+	int idx;
+	SDL_NewTimerCallback callback;
+	int interval;
+	void *param;
+}*SDL_TimerID;
 
 extern SDL_TimerID SDL_AddTimer(Uint32 interval, SDL_NewTimerCallback callback, void *param);
 extern SDL_bool SDL_RemoveTimer(SDL_TimerID t);

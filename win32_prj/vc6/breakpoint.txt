@@ -1,0 +1,10 @@
+int SDL_PollEvent(SDL_Event *event) {
+
+	MSG		msg;
+
+------->	if (__sdl_avail) {
+	
+	
+---------------------------------------------
+
+
