@@ -328,6 +328,7 @@ static BOOL sdlinit(void) {
 	ShowWindow(__sdl_hWnd, SW_SHOW);
 	UpdateWindow(__sdl_hWnd);
 	__sdl_avail = TRUE;
+	_SDL_Timer_init();
 	return(SUCCESS);
 }
 

@@ -4258,7 +4258,7 @@ int ONScripterLabel::bgCommand()
 
     EffectLink *el = parseEffect(true);
     if (setEffect(el, true, true)) return RET_CONTINUE;
-#if 0 //TODO:
+#if 1 //TODO:
     while (doEffect(el));
 #endif
 

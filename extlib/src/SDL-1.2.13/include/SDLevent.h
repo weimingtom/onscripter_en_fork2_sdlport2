@@ -381,6 +381,8 @@ extern int SDL_WaitEvent(SDL_Event *event);
 //	SDL_VIDEOEXPOSE, //FIXME:not implemented
 
 
+extern void _SDL_Timer_init(void);
+
 #ifdef __cplusplus
 }
 #endif

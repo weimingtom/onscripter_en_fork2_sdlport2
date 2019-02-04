@@ -113,13 +113,19 @@ BYTE SDL_GetMouseState(int *x, int *y) {
 //
 #define TIMER_MAX 125
 static SDL_TimerID timers[TIMER_MAX] = {NULL};
+void _SDL_Timer_init(void)
+{
+	int i;
+	for (i = 0; i < TIMER_MAX; ++i) {
+		timers[i] = NULL;
+	}
+}
 void CALLBACK SDL_AddTimer_callback(HWND hWnd,UINT nMsg,UINT nTimerid,DWORD dwTime)
 {
 	int i;
 	int idx;
-	SDL_TimerID id;
+	SDL_TimerID id = NULL;
 
-	OutputDebugString("-------SDL_AddTimer_callback\n");
 	for (i = 0; i < TIMER_MAX; ++i) {
 		if (timers[i] != NULL && timers[i]->idTimer == nTimerid) {
 			idx = i;
@@ -130,10 +136,13 @@ void CALLBACK SDL_AddTimer_callback(HWND hWnd,UINT nMsg,UINT nTimerid,DWORD dwTi
 
 	if (id != NULL) {
 		if (id->callback != NULL) {
+			OutputDebugString("-------SDL_AddTimer_callback\n");
 			(id->callback)(id->interval, id->param);
 		} else {
 			assert(0);
 		}
+	} else {
+		assert(0);
 	}
 }
 SDL_TimerID SDL_AddTimer(Uint32 interval, SDL_NewTimerCallback callback, void *param)
@@ -172,6 +181,8 @@ SDL_bool SDL_RemoveTimer(SDL_TimerID t)
 	//assert(0);
 	if (t != NULL) {
 		if (t->idx >= 0 && t->idx < TIMER_MAX) {
+			OutputDebugString("-------SDL_RemoveTimer\n");
+			KillTimer(NULL, timers[t->idx]->idTimer);
 			timers[t->idx] = NULL;
 			free(t);
 			return SDL_TRUE;
