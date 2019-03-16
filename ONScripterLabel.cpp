@@ -376,15 +376,6 @@ void ONScripterLabel::initSDL()
         return; //dummy
     }
 
-#if 0
-    if(SDL_InitSubSystem( SDL_INIT_JOYSTICK ) == 0 && SDL_JoystickOpen(0) != NULL)
-        printf( "Initialize JOYSTICK\n");
-#endif
-
-#if defined(PSP) || defined(IPODLINUX)
-    SDL_ShowCursor(SDL_DISABLE);
-#endif
-
     SDL_EnableUNICODE(1);
 
     /* ---------------------------------------- */
@@ -393,71 +384,6 @@ void ONScripterLabel::initSDL()
         errorAndExit("can't initialize SDL TTF", NULL, "Init Error", true);
         return; //dummy
     }
-
-//insani added app icon
-    SDL_Surface* icon = IMG_Load("icon.png");
-    //use icon.png preferably, but try embedded resources if not found
-    //(cmd-line option --use-app-icons to prefer app resources over icon.png)
-    //(Mac apps can set use-app-icons in a ons.cfg file within the
-    //bundle, to have it always use the bundle icns)
-#ifndef MACOSX
-    if (!icon || use_app_icons) {
-#ifdef WIN32
-        //use the (first) Windows icon resource
-        HICON wicon = LoadIcon(GetModuleHandle(NULL), "ONSCRICON"); //MAKEINTRESOURCE(ONSCRICON)
-        if (wicon) {
-            SDL_SysWMinfo info;
-            SDL_VERSION(&info.version);
-            SDL_GetWMInfo(&info);
-            SendMessage(info.window, WM_SETICON, ICON_BIG, (LPARAM)wicon);
-        }
-#else
-        //backport from ponscripter
-        const InternalResource* internal_icon = getResource("icon.png");
-        if (internal_icon) {
-            if (icon) SDL_FreeSurface(icon);
-            SDL_RWops* rwicon = SDL_RWFromConstMem(internal_icon->buffer,
-                                                   internal_icon->size);
-            icon = IMG_Load_RW(rwicon, 0);
-            use_app_icons = false;
-        }
-#endif //WIN32
-    }
-#endif //!MACOSX
-    // If an icon was found (and desired), use it.
-    if (icon && !use_app_icons) {
-#if defined(MACOSX) || defined(WIN32)
-#if defined(MACOSX)
-        //resize the (usually 32x32) icon to 128x128
-        SDL_Surface *tmp2 = SDL_CreateRGBSurface(SDL_SWSURFACE, 128, 128,
-                                                 32, 0x00ff0000, 0x0000ff00,
-                                                 0x000000ff, 0xff000000);
-#elif defined(WIN32)
-        //resize the icon to 32x32
-        SDL_Surface *tmp2 = SDL_CreateRGBSurface(SDL_SWSURFACE, 32, 32,
-                                                 32, 0x00ff0000, 0x0000ff00,
-                                                 0x000000ff, 0xff000000);
-#endif //MACOSX, WIN32
-        SDL_Surface *tmp = SDL_ConvertSurface( icon, tmp2->format, SDL_SWSURFACE );
-        if ((tmp->w == tmp2->w) && (tmp->h == tmp2->h)) {
-            //already the right size, just use converted surface as-is
-            SDL_FreeSurface(tmp2);
-            tmp2 = icon;
-            icon = tmp;
-            SDL_FreeSurface(tmp2);
-        } else {
-            //resize converted surface
-            AnimationInfo::resizeSurface(tmp, tmp2);
-            SDL_FreeSurface(tmp);
-            tmp = icon;
-            icon = tmp2;
-            SDL_FreeSurface(tmp);
-        }
-#endif //MACOSX || WIN32
-        SDL_WM_SetIcon(icon, NULL);
-    }
-    if (icon)
-        SDL_FreeSurface(icon);
 
 #ifdef BPP16
     screen_bpp = 16;
@@ -622,7 +548,6 @@ ONScripterLabel::ONScripterLabel()
   breakup_cells(NULL), breakup_cellforms(NULL), breakup_mask(NULL),
   shelter_select_link(NULL), default_cdrom_drive(NULL),
   wave_file_name(NULL), seqmusic_file_name(NULL), 
-  cdrom_info(NULL),
   music_file_name(NULL), music_buffer(NULL),
   music_cmd(NULL), seqmusic_cmd(NULL),
   movie_buffer(NULL), async_movie_surface(NULL),
@@ -1090,18 +1015,6 @@ int ONScripterLabel::init()
     // ----------------------------------------
     // Sound related variables
     this->cdaudio_flag = cdaudio_flag;
-    if ( cdaudio_flag ){
-        if ( cdrom_drive_number >= 0 && cdrom_drive_number < SDL_CDNumDrives() )
-            cdrom_info = SDL_CDOpen( cdrom_drive_number );
-        if ( !cdrom_info ){
-            fprintf(stderr, "Couldn't open default CD-ROM: %s\n", SDL_GetError());
-        }
-        else if ( cdrom_info && !CD_INDRIVE( SDL_CDStatus( cdrom_info ) ) ) {
-            fprintf( stderr, "no CD-ROM in the drive\n" );
-            SDL_CDClose( cdrom_info );
-            cdrom_info = NULL;
-        }
-    }
 
     // ----------------------------------------
     // Initialize misc variables
@@ -2315,11 +2228,6 @@ int ONScripterLabel::refreshMode()
 void ONScripterLabel::quit()
 {
     saveAll();
-
-    if ( cdrom_info ){
-        SDL_CDStop( cdrom_info );
-        SDL_CDClose( cdrom_info );
-    }
 }
 
 void ONScripterLabel::disableGetButtonFlag()

@@ -919,7 +919,6 @@ private:
     bool seqmusic_play_loop_flag;
     char *seqmusic_file_name;
 
-    SDL_CD *cdrom_info;
     int current_cd_track;
     bool cd_play_loop_flag;
     bool music_play_loop_flag;

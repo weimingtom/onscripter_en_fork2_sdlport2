@@ -64,7 +64,6 @@
 
 static SDL_TimerID timer_id = NULL;
 static SDL_TimerID break_id = NULL;
-SDL_TimerID timer_cdaudio_id = NULL;
 SDL_TimerID anim_timer_id = NULL;
 
 SDL_TimerID timer_bgmfade_id = NULL;
@@ -133,17 +132,6 @@ extern "C" Uint32 timerCallback( Uint32 interval, void *param )
 
     SDL_Event event;
     event.type = ONS_TIMER_EVENT;
-    SDL_PushEvent( &event );
-
-    return 0;
-}
-
-extern "C" Uint32 cdaudioCallback( Uint32 interval, void *param )
-{
-    clearTimer( timer_cdaudio_id );
-
-    SDL_Event event;
-    event.type = ONS_CDAUDIO_EVENT;
     SDL_PushEvent( &event );
 
     return 0;
@@ -641,7 +629,6 @@ bool ONScripterLabel::mousePressEvent( SDL_MouseButtonEvent *event )
         if ( event->type == SDL_MOUSEBUTTONDOWN )
             current_button_state.down_flag = true;
     }
-#if SDL_VERSION_ATLEAST(1, 2, 5)
     else if ((event->button == SDL_BUTTON_WHEELUP) &&
              ((event_mode & WAIT_TEXT_MODE) ||
               (usewheel_flag && (event_mode & WAIT_BUTTON_MODE)) ||
@@ -660,7 +647,6 @@ bool ONScripterLabel::mousePressEvent( SDL_MouseButtonEvent *event )
             current_button_state.set(-3);
         }
     }
-#endif
     else return false;
 
     if (current_button_state.valid_flag)

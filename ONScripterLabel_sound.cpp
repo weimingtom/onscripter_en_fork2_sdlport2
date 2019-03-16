@@ -80,7 +80,6 @@ extern bool ext_music_play_once_flag;
 extern "C"{
     extern void mp3callback( void *userdata, Uint8 *stream, int len );
     extern void oggcallback( void *userdata, Uint8 *stream, int len );
-    extern Uint32 cdaudioCallback( Uint32 interval, void *param );
     extern Uint32 silentmovieCallback( Uint32 interval, void *param );
 #if defined(MACOSX) //insani
     extern Uint32 seqmusicSDLCallback( Uint32 interval, void *param );
@@ -277,12 +276,8 @@ void ONScripterLabel::playCDAudio()
 {
     if (!audio_open_flag) return;
 
-    if ( cdaudio_flag ){
-        if ( cdrom_info ){
-            int length = cdrom_info->track[current_cd_track - 1].length / 75;
-            SDL_CDPlayTracks( cdrom_info, current_cd_track - 1, 0, 1, 0 );
-            timer_cdaudio_id = SDL_AddTimer( length * 1000, cdaudioCallback, NULL );
-        }
+    if ( cdaudio_flag ) {
+
     }
     else{
         //if CD audio is not available, search the "cd" subfolder
@@ -407,14 +402,6 @@ int ONScripterLabel::playAVI( const char *filename, bool click_flag )
 
 void ONScripterLabel::stopBGM( bool continue_flag )
 {
-    if ( cdaudio_flag && cdrom_info ){
-        extern SDL_TimerID timer_cdaudio_id;
-
-        clearTimer( timer_cdaudio_id );
-        if (SDL_CDStatus( cdrom_info ) >= CD_PLAYING )
-            SDL_CDStop( cdrom_info );
-    }
-
     if ( !continue_flag ){
         setStr( &music_file_name, NULL );
         music_play_loop_flag = false;

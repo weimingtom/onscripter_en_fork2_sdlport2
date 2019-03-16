@@ -1788,10 +1788,11 @@ int ONScripterLabel::movemousecursorCommand()
 int ONScripterLabel::mousemodeCommand()
 {
     int no = script_h.readInt();
-    if (no == 0)
-        SDL_ShowCursor(SDL_DISABLE);
-    else
-        SDL_ShowCursor(SDL_ENABLE);
+    if (no == 0) {
+        ; //SDL_ShowCursor(SDL_DISABLE);
+    } else {
+        ; //SDL_ShowCursor(SDL_ENABLE);
+	}
 
     return RET_CONTINUE;
 }
@@ -1822,10 +1823,6 @@ int ONScripterLabel::monocroCommand()
 
 int ONScripterLabel::minimizewindowCommand()
 {
-#ifndef PSP
-    SDL_WM_IconifyWindow();
-#endif
-
     return RET_CONTINUE;
 }
 
@@ -3844,7 +3841,6 @@ int ONScripterLabel::captionCommand()
 
     //set the window caption directly
     SDL_SysWMinfo info;
-    SDL_VERSION(&info.version);
     SDL_GetWMInfo(&info);
     SendMessageA(info.window, WM_SETTEXT, 0, (LPARAM)cvt);
     delete[] cvt;

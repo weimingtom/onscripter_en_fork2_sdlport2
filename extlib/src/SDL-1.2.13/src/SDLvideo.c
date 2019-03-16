@@ -371,24 +371,6 @@ SDL_Surface * SDL_ConvertSurface(SDL_Surface *src, SDL_PixelFormat *fmt, Uint32 
 	return NULL;
 }
 
-int SDL_CDPlayTracks(SDL_CD *cdrom, int start_track, int start_frame, int ntracks, int nframes)
-{
-	assert(0);
-	return 0;
-}
-
-CDstatus SDL_CDStatus(SDL_CD *cdrom)
-{
-	assert(0);
-	return 0;
-}
-
-int SDL_CDStop(SDL_CD *cdrom)
-{
-	assert(0);
-	return 0;
-}
-
 void SDL_WarpMouse(Uint16 x, Uint16 y)
 {
 	assert(0);
@@ -418,23 +400,9 @@ int SDL_SaveBMP(SDL_Surface *surface, const char *file)
 	return 0;
 }
 
-int SDL_ShowCursor(int toggle)
-{
-	assert(0);
-	return 0;
-}
-
-int SDL_WM_IconifyWindow(void)
-{
-	assert(0);
-	return 0;
-}
-
 int SDL_GetWMInfo(SDL_SysWMinfo *info)
 {
-	//assert(0);
 	info->window = NULL;
-	SDL_VERSION(&(info->version));
 	return 0;
 }
 
@@ -444,38 +412,9 @@ void SDL_UpdateRect(SDL_Surface *screen, Sint32 x, Sint32 y, Uint32 w, Uint32 h)
 	//assert(0);
 }
 
-void SDL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask)
-{
-	assert(0);
-}
-
-int SDL_CDNumDrives(void)
-{
-	assert(0);
-	return 0;
-}
-
-SDL_CD * SDL_CDOpen(int drive)
-{
-	assert(0);
-	return NULL;
-}
-
-void SDL_CDClose(SDL_CD *cdrom)
-{
-	assert(0);
-}
-
 void SDL_UpdateRects(SDL_Surface *screen, int numrects, SDL_Rect *rects)
 {
 	assert(0);
-}
-
-static void *g_hInst;
-void SDL_SetModuleHandle(void *hInst)
-{
-	g_hInst = hInst;
-	//assert(0);
 }
 
 SDL_RWops *SDL_RWFromFile(const char *file, const char *mode) 

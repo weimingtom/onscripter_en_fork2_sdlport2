@@ -103,30 +103,6 @@ typedef struct SDL_AudioSpec {
 
 #define SDL_MAX_TRACKS	99
 
-typedef enum {
-	CD_TRAYEMPTY,
-	CD_STOPPED,
-	CD_PLAYING,
-	CD_PAUSED,
-	CD_ERROR = -1
-} CDstatus;
-
-typedef struct SDL_CDtrack {
-	Uint8 id;
-	Uint8 type;	
-	Uint16 unused;
-	Uint32 length;
-	Uint32 offset;
-} SDL_CDtrack;
-
-typedef struct SDL_CD {
-	SDL_CDtrack track[SDL_MAX_TRACKS+1];
-} SDL_CD;
-
-extern int SDL_CDPlayTracks(SDL_CD *cdrom, int start_track, int start_frame, int ntracks, int nframes);
-extern CDstatus SDL_CDStatus(SDL_CD *cdrom);
-extern int SDL_CDStop(SDL_CD *cdrom);
-
 typedef struct SDL_AudioCVT {
 	Uint8 *buf;
 } SDL_AudioCVT;
@@ -145,65 +121,14 @@ extern int SDL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha);
 
 extern int SDL_SaveBMP(SDL_Surface *surface, const char *file);
 
-#define SDL_DISABLE	 0
-#define SDL_ENABLE	 1
-extern int SDL_ShowCursor(int toggle);
-
-extern int SDL_WM_IconifyWindow(void);
-
-
-#define SDL_MAJOR_VERSION	1
-#define SDL_MINOR_VERSION	2
-#define SDL_PATCHLEVEL		13
-
-typedef struct SDL_version {
-	Uint8 major;
-	Uint8 minor;
-	Uint8 patch;
-} SDL_version;
-
 typedef struct SDL_SysWMinfo {
-	SDL_version version;
 	HWND window;
 } SDL_SysWMinfo;
-
-#define SDL_VERSION(X)							\
-{									\
-	(X)->major = SDL_MAJOR_VERSION;					\
-	(X)->minor = SDL_MINOR_VERSION;					\
-	(X)->patch = SDL_PATCHLEVEL;					\
-}
-
-
-
-
 extern int SDL_GetWMInfo(SDL_SysWMinfo *info);
 
 extern void SDL_UpdateRect(SDL_Surface *screen, Sint32 x, Sint32 y, Uint32 w, Uint32 h);
 
-extern void SDL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask);
-
-extern int SDL_CDNumDrives(void);
-
-extern SDL_CD * SDL_CDOpen(int drive);
-
-extern void SDL_CDClose(SDL_CD *cdrom);
-
-#define CD_INDRIVE(status)	((int)(status) > 0)
-
 extern void SDL_UpdateRects(SDL_Surface *screen, int numrects, SDL_Rect *rects);
-
-#define SDL_VERSIONNUM(X, Y, Z)						\
-	((X)*1000 + (Y)*100 + (Z))
-
-/* This is the version number macro for the current SDL version */
-#define SDL_COMPILEDVERSION \
-	SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL)
-
-#define SDL_VERSION_ATLEAST(X, Y, Z) \
-	(SDL_COMPILEDVERSION >= SDL_VERSIONNUM(X, Y, Z))
-
-extern void SDL_SetModuleHandle(void *hInst);
 
 extern SDL_RWops *SDL_RWFromFile(const char *file, const char *mode);
 extern int SDL_RWseek(SDL_RWops *stream, long offset, int origin);
