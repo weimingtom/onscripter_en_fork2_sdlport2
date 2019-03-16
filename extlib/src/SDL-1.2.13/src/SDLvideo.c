@@ -11,9 +11,6 @@ static	const char		vinfostr[] = "SDL simulate";
 extern	SDL_Surface		*__sdl_vsurf;
 extern	HWND			__sdl_hWnd;
 
-
-// ---- surface
-
 enum {
 	SURFTYPE_MEMORY	= 0,
 	SURFTYPE_BITMAP	= 1
@@ -100,9 +97,7 @@ static SDL_Surface *cresurf_sw(DWORD flags, int width, int height,
 	return(ret);
 }
 
-static SDL_Surface *cresurf_hw(DWORD flags, int width, int height,
-			int depth, DWORD Rmask, DWORD Gmask, DWORD Bmask, DWORD Amask) {
-
+static SDL_Surface *cresurf_hw(DWORD flags, int width, int height, int depth, DWORD Rmask, DWORD Gmask, DWORD Bmask, DWORD Amask) {
 	BMPINFO			bi;
 	HDC				hdc;
 	HBITMAP			hbmp;
@@ -186,12 +181,9 @@ SDL_Surface *SDL_CreateRGBSurface(DWORD flags, int width, int height,
 		return(NULL);
 	}
 	if (flags & SDL_HWSURFACE) {
-		return(cresurf_hw(flags, width, height, depth,
-											Rmask, Gmask, Bmask, Amask));
-	}
-	else {
-		return(cresurf_sw(flags, width, height, depth,
-											Rmask, Gmask, Bmask, Amask));
+		return cresurf_hw(flags, width, height, depth, Rmask, Gmask, Bmask, Amask);
+	} else {
+		return cresurf_sw(flags, width, height, depth, Rmask, Gmask, Bmask, Amask);
 	}
 }
 
@@ -313,7 +305,6 @@ const SDL_VideoInfo *SDL_GetVideoInfo(void) {
 }
 
 char *SDL_VideoDriverName(char *namebuf, int maxlen) {
-
 	if ((namebuf) && (maxlen)) {
 		strncpy(namebuf, vinfostr, maxlen);
 	}
@@ -321,10 +312,8 @@ char *SDL_VideoDriverName(char *namebuf, int maxlen) {
 }
 
 SDL_Surface *SDL_SetVideoMode(int width, int height, int bpp, DWORD flags) {
-
 	SDL_FreeSurface(__sdl_vsurf);
-	__sdl_vsurf = SDL_CreateRGBSurface(SDL_HWSURFACE, width, height, bpp,
-																0, 0, 0, 0);
+	__sdl_vsurf = SDL_CreateRGBSurface(SDL_HWSURFACE, width, height, bpp, 0, 0, 0, 0);
 	setclientsize(__sdl_hWnd, width, height);
 	return(__sdl_vsurf);
 }
@@ -480,37 +469,6 @@ void SDL_CDClose(SDL_CD *cdrom)
 void SDL_UpdateRects(SDL_Surface *screen, int numrects, SDL_Rect *rects)
 {
 	assert(0);
-}
-
-char * SDL_strrchr(const char *string, int c)
-{
-	return strrchr(string, c);
-}
-
-size_t SDL_strlen(const char *string)
-{
-	return strlen(string);
-}
-
-size_t SDL_strlcpy(char *dst, const char *src, size_t maxlen)
-{
-	size_t srclen = strlen(src);
-    if (maxlen > 0) {
-        size_t len = srclen < maxlen - 1 ? srclen : maxlen - 1;
-        memcpy(dst, src, len);
-        dst[len] = '\0';
-    }
-    return srclen;
-}
-
-size_t SDL_strlcat(char *dst, const char *src, size_t maxlen)
-{
-    size_t dstlen = strlen(dst);
-    size_t srclen = strlen(src);
-    if (dstlen < maxlen) {
-        SDL_strlcpy(dst + dstlen, src, maxlen - dstlen);
-    }
-    return dstlen+srclen;
 }
 
 static void *g_hInst;

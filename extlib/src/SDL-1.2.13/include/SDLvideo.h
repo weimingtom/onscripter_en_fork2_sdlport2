@@ -1,6 +1,6 @@
 #pragma once
 
-#include	"SDL_common.h"
+#include "SDL_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -8,13 +8,7 @@ extern "C" {
 
 enum {
 	SDL_SWSURFACE	= 0x00000000,
-	SDL_HWSURFACE	= 0x00000001,
-//	SDL_OPENGL      = 0x00000002,
-//	SDL_ASYNCBLIT	= 0x00000004,
-	SDL_ANYFORMAT	= 0x10000000,
-//	SDL_HWPALETTE	= 0x20000000,
-	SDL_DOUBLEBUF	= 0x40000000,
-	SDL_FULLSCREEN	= 0x80000000
+	SDL_HWSURFACE	= 0x00000001
 };
 
 typedef struct {
@@ -60,52 +54,15 @@ typedef struct SDL_Surface {
 	int		h;
 	WORD	pitch;
 	void	*pixels;
-//	int		offset;
-
-	// Hardware-specific surface info
-//	struct private_hwdata *hwdata;
-
-	// clipping information
-//	SDL_Rect	clip_rect;
-//	DWORD		unused1;
-
-	// Allow recursive locks
-//	DWORD		locked;
-
-	// info for fast blit mapping to other surfaces
-//	struct SDL_BlitMap *map;
-
-	// format version, bumped at every change to invalidate blit maps
-//	unsigned int format_version;
-
-	// Reference count -- used when freeing surface
-//	int		refcount;
 } SDL_Surface;
 
 typedef struct {
-//	Uint32 hw_available :1;	/* Flag: Can you create hardware surfaces? */
-//	Uint32 wm_available :1;	/* Flag: Can you talk to a window manager? */
-//	Uint32 UnusedBits1  :6;
-//	Uint32 UnusedBits2  :1;
-//	Uint32 blit_hw      :1;	/* Flag: Accelerated blits HW --> HW */
-//	Uint32 blit_hw_CC   :1;	/* Flag: Accelerated blits with Colorkey */
-//	Uint32 blit_hw_A    :1;	/* Flag: Accelerated blits with Alpha */
-//	Uint32 blit_sw      :1;	/* Flag: Accelerated blits SW --> HW */
-//	Uint32 blit_sw_CC   :1;	/* Flag: Accelerated blits with Colorkey */
-//	Uint32 blit_sw_A    :1;	/* Flag: Accelerated blits with Alpha */
-//	Uint32 blit_fill    :1;	/* Flag: Accelerated color fill */
-//	Uint32 UnusedBits3  :16;
-//	Uint32 video_mem;	/* The total amount of video memory (in K) */
 	SDL_PixelFormat *vfmt;	/* Value: The format of the video surface */
 	int    current_w;	//FIXME:not implemented
 	int    current_h;	//FIXME:not implemented
 } SDL_VideoInfo;
 
-
-
-
-SDL_Surface *SDL_CreateRGBSurface(DWORD flags, int width, int height,
-			int depth, DWORD Rmask, DWORD Gmask, DWORD Bmask, DWORD Amask);
+SDL_Surface *SDL_CreateRGBSurface(DWORD flags, int width, int height, int depth, DWORD Rmask, DWORD Gmask, DWORD Bmask, DWORD Amask);
 void SDL_FreeSurface(SDL_Surface *surface);
 
 void SDL_WM_SetCaption(const char *title, const char *icon);
@@ -116,8 +73,6 @@ SDL_Surface *SDL_GetVideoSurface(void);
 int SDL_LockSurface(SDL_Surface *surface);
 void SDL_UnlockSurface(SDL_Surface *surface);
 int SDL_Flip(SDL_Surface *screen);
-
-
 
 //FIXME:dummy
 typedef struct {
@@ -178,15 +133,6 @@ typedef struct SDL_AudioCVT {
 
 extern void SDL_WarpMouse(Uint16 x, Uint16 y);
 
-//typedef struct SDL_Surface {
-//	Uint32	flags; //FIXME:not implemented
-//typedef struct SDL_PixelFormat {
-//	BYTE		Rloss; //FIXME:not implemented
-//	BYTE		Gloss; //FIXME:not implemented
-//	BYTE		Bloss; //FIXME:not implemented
-//	BYTE		Aloss; //FIXME:not implemented
-//	DWORD		colorkey; //FIXME:not implemented
-
 #define SDL_SRCCOLORKEY	0x00001000	/* Blit uses a source color key */
 
 extern Uint32 SDL_MapRGBA(const SDL_PixelFormat * const format, const Uint8 r, const Uint8 g, const Uint8 b, const Uint8 a);
@@ -237,10 +183,6 @@ extern void SDL_UpdateRect(SDL_Surface *screen, Sint32 x, Sint32 y, Uint32 w, Ui
 
 extern void SDL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask);
 
-//	int    current_w;	//FIXME:not implemented
-//	int    current_h;	//FIXME:not implemented
-//} SDL_VideoInfo;
-
 extern int SDL_CDNumDrives(void);
 
 extern SDL_CD * SDL_CDOpen(int drive);
@@ -251,8 +193,6 @@ extern void SDL_CDClose(SDL_CD *cdrom);
 
 extern void SDL_UpdateRects(SDL_Surface *screen, int numrects, SDL_Rect *rects);
 
-
-
 #define SDL_VERSIONNUM(X, Y, Z)						\
 	((X)*1000 + (Y)*100 + (Z))
 
@@ -262,20 +202,6 @@ extern void SDL_UpdateRects(SDL_Surface *screen, int numrects, SDL_Rect *rects);
 
 #define SDL_VERSION_ATLEAST(X, Y, Z) \
 	(SDL_COMPILEDVERSION >= SDL_VERSIONNUM(X, Y, Z))
-
-
-extern char * SDL_strrchr(const char *string, int c);
-
-extern size_t SDL_strlen(const char *string);
-
-#define SDL_stack_alloc(type, count)    (type*)malloc(sizeof(type)*(count))
-#define SDL_stack_free(data)            free(data)
-
-extern size_t SDL_strlcpy(char *dst, const char *src, size_t maxlen);
-
-extern size_t SDL_strlcat(char *dst, const char *src, size_t maxlen);
-
-#define SDL_arraysize(array)	(sizeof(array)/sizeof(array[0]))
 
 extern void SDL_SetModuleHandle(void *hInst);
 

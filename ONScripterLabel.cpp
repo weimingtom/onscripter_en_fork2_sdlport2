@@ -559,7 +559,7 @@ void ONScripterLabel::initSDL()
         }
     }
 #endif
-    screen_surface = SDL_SetVideoMode( screen_width, screen_height, screen_bpp, DEFAULT_VIDEO_SURFACE_FLAG|(fullscreen_mode?SDL_FULLSCREEN:0) );
+    screen_surface = SDL_SetVideoMode( screen_width, screen_height, screen_bpp, DEFAULT_VIDEO_SURFACE_FLAG );
 
     /* ---------------------------------------- */
     /* Check if VGA screen is available. */
@@ -568,7 +568,7 @@ void ONScripterLabel::initSDL()
         screen_ratio1 /= 2;
         screen_width  /= 2;
         screen_height /= 2;
-        screen_surface = SDL_SetVideoMode( screen_width, screen_height, screen_bpp, DEFAULT_VIDEO_SURFACE_FLAG|(fullscreen_mode?SDL_FULLSCREEN:0) );
+        screen_surface = SDL_SetVideoMode( screen_width, screen_height, screen_bpp, DEFAULT_VIDEO_SURFACE_FLAG );
     }
 #endif
 
