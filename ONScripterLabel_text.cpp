@@ -185,12 +185,12 @@ void ONScripterLabel::drawGlyph( SDL_Surface *dst_surface, Fontinfo *info, SDL_C
     }
 
     if (rotate_flag){
-        dst_rect.w = tmp_surface->h;
-        dst_rect.h = tmp_surface->w;
+        dst_rect.w = SDL_Surface_get_h(tmp_surface);
+        dst_rect.h = SDL_Surface_get_w(tmp_surface);
     }
     else{
-        dst_rect.w = tmp_surface->w;
-        dst_rect.h = tmp_surface->h;
+        dst_rect.w = SDL_Surface_get_w(tmp_surface);
+        dst_rect.h = SDL_Surface_get_h(tmp_surface);
     }
 
     if (cache_info)

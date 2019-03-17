@@ -462,7 +462,7 @@ int ONScripterLabel::loadSaveFile( int no, bool input_flag )
             setupAnimationInfo( &tachi_info[ i ] );
             tachi_info[ i ].pos.x = screen_width * (i+1) / 4 - tachi_info[ i ].pos.w / 2;
             tachi_info[ i ].orig_pos.x = ContractPos(tachi_info[ i ].pos.x);
-            tachi_info[ i ].pos.y = ExpandPos(underline_value) - tachi_info[ i ].image_surface->h + 1;
+            tachi_info[ i ].pos.y = ExpandPos(underline_value) - SDL_Surface_get_h(tachi_info[ i ].image_surface) + 1;
             tachi_info[ i ].orig_pos.y = ContractPos(tachi_info[ i ].pos.y);
         }
     }

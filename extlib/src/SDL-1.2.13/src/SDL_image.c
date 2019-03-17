@@ -101,9 +101,9 @@ static int readRlePixels(SDL_Surface * surface, SDL_RWops * src, int isRle8)
 	/*
 	| Sets the surface pixels from src.  A bmp image is upside down.
 	*/
-	int pitch = surface->pitch;
-	int height = surface->h;
-	Uint8 * bits = (Uint8 *)surface->pixels + ((height-1) * pitch);
+	int pitch = SDL_Surface_get_pitch(surface);
+	int height = SDL_Surface_get_h(surface);
+	Uint8 * bits = (Uint8 *)SDL_Surface_get_pixels(surface) + ((height-1) * pitch);
 	int ofs = 0;
 	Uint8 ch;
 	Uint8 needsPad;
@@ -394,7 +394,7 @@ SDL_Surface *IMG_LoadBMP_RW(SDL_RWops *src)
 		if (was_error) IMG_SetError("Error reading from BMP");
 		goto done;
 	}
-	bits = (Uint8 *)surface->pixels+(surface->h*surface->pitch);
+	bits = (Uint8 *)SDL_Surface_get_pixels(surface) + (SDL_Surface_get_h(surface) * SDL_Surface_get_pitch(surface));
 	switch (ExpandBMP) {
 		case 1:
 			bmpPitch = (biWidth + 7) >> 3;
@@ -405,18 +405,18 @@ SDL_Surface *IMG_LoadBMP_RW(SDL_RWops *src)
 			pad  = (((bmpPitch)%4) ? (4-((bmpPitch)%4)) : 0);
 			break;
 		default:
-			pad  = ((surface->pitch%4) ?
-					(4-(surface->pitch%4)) : 0);
+			pad  = ((SDL_Surface_get_pitch(surface) % 4) ?
+					(4 - (SDL_Surface_get_pitch(surface) % 4)) : 0);
 			break;
 	}
-	while ( bits > (Uint8 *)surface->pixels ) {
-		bits -= surface->pitch;
+	while ( bits > (Uint8 *)SDL_Surface_get_pixels(surface) ) {
+		bits -= SDL_Surface_get_pitch(surface);
 		switch (ExpandBMP) {
 			case 1:
 			case 4: {
 			Uint8 pixel = 0;
-			int   shift = (8-ExpandBMP);
-			for ( i=0; i<surface->w; ++i ) {
+			int shift = (8-ExpandBMP);
+			for (i = 0; i < SDL_Surface_get_w(surface); ++i) {
 				if ( i%(8/ExpandBMP) == 0 ) {
 					if ( !SDL_RWread(src, &pixel, 1, 1) ) {
 						IMG_SetError(
@@ -431,8 +431,8 @@ SDL_Surface *IMG_LoadBMP_RW(SDL_RWops *src)
 			break;
 
 			default:
-			if ( SDL_RWread(src, bits, 1, surface->pitch)
-							 != surface->pitch ) {
+			if ( SDL_RWread(src, bits, 1, SDL_Surface_get_pitch(surface))
+							 != SDL_Surface_get_pitch(surface) ) {
 				IMG_SetError("Error reading from datastream"); //SDL_EFREAD
 				was_error = 1;
 				goto done;
@@ -444,14 +444,14 @@ SDL_Surface *IMG_LoadBMP_RW(SDL_RWops *src)
 				case 15:
 				case 16: {
 				        Uint16 *pix = (Uint16 *)bits;
-					for(i = 0; i < surface->w; i++)
+					for (i = 0; i < SDL_Surface_get_w(surface); i++)
 					        pix[i] = SDL_Swap16(pix[i]);
 					break;
 				}
 
 				case 32: {
 				        Uint32 *pix = (Uint32 *)bits;
-					for(i = 0; i < surface->w; i++)
+					for(i = 0; i < SDL_Surface_get_w(surface); i++)
 					        pix[i] = SDL_Swap32(pix[i]);
 					break;
 				}

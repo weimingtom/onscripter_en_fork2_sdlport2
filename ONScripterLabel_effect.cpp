@@ -412,7 +412,7 @@ bool ONScripterLabel::doEffect( EffectLink *effect, bool clear_dirty_region )
         dst_rect.x = 0;
         dst_rect.y = (Sint16)(sin(M_PI * 2.0 * effect->no * effect_counter / effect_duration) *
                               EFFECT_QUAKE_AMP * effect->no * (effect_duration -  effect_counter) / effect_duration);
-        SDL_FillRect( accumulation_surface, NULL, SDL_MapRGBA( accumulation_surface->format, 0, 0, 0, 0xff ) );
+        SDL_FillRect( accumulation_surface, NULL, SDL_MapRGBA( SDL_Surface_get_format(accumulation_surface), 0, 0, 0, 0xff ) );
         drawEffect(&dst_rect, &src_rect, effect_dst_surface);
         break;
 
@@ -428,7 +428,7 @@ bool ONScripterLabel::doEffect( EffectLink *effect, bool clear_dirty_region )
       case (CUSTOM_EFFECT_NO + 2 ): // quake
         dst_rect.x = effect->no*((int)(3.0*rand()/(RAND_MAX+1.0)) - 1) * 2;
         dst_rect.y = effect->no*((int)(3.0*rand()/(RAND_MAX+1.0)) - 1) * 2;
-        SDL_FillRect( accumulation_surface, NULL, SDL_MapRGBA( accumulation_surface->format, 0, 0, 0, 0xff ) );
+        SDL_FillRect( accumulation_surface, NULL, SDL_MapRGBA( SDL_Surface_get_format(accumulation_surface), 0, 0, 0, 0xff ) );
         drawEffect(&dst_rect, &src_rect, effect_dst_surface);
         break;
 
@@ -552,18 +552,18 @@ void ONScripterLabel::generateMosaic( SDL_Surface *src_surface, int level )
     for ( i=0 ; i<level ; i++ ) width >>= 1;
 
 #ifdef BPP16
-    int total_width = accumulation_surface->pitch / 2;
+    int total_width = SDL_Surface_get_pitch(accumulation_surface) / 2;
 #else
-    int total_width = accumulation_surface->pitch / 4;
+    int total_width = SDL_Surface_get_pitch(accumulation_surface) / 4;
 #endif
     SDL_LockSurface( src_surface );
     SDL_LockSurface( accumulation_surface );
-    ONSBuf *src_buffer = (ONSBuf *)src_surface->pixels;
+    ONSBuf *src_buffer = (ONSBuf *)SDL_Surface_get_pixels(src_surface);
 
     for ( i=screen_height-1 ; i>=0 ; i-=width ){
         for ( j=0 ; j<screen_width ; j+=width ){
             ONSBuf p = src_buffer[ i*total_width+j ];
-            ONSBuf *dst_buffer = (ONSBuf *)accumulation_surface->pixels + i*total_width + j;
+            ONSBuf *dst_buffer = (ONSBuf *)SDL_Surface_get_pixels(accumulation_surface) + i * total_width + j;
 
             int height2 = width;
             if (i+1-width < 0) height2 = i+1;
@@ -589,15 +589,15 @@ void ONScripterLabel::doFlushout( int level )
     int i, j, ii, jj;
 
 #ifdef BPP16
-    int total_width = accumulation_surface->pitch / 2;
+    int total_width = SDL_Surface_get_pitch(accumulation_surface) / 2;
 #else
-    int total_width = accumulation_surface->pitch / 4;
+    int total_width = SDL_Surface_get_pitch(accumulation_surface) / 4;
 #endif
     SDL_LockSurface( effect_src_surface );
     SDL_LockSurface( accumulation_surface );
-    ONSBuf *src_buffer = (ONSBuf *)effect_src_surface->pixels;
+    ONSBuf *src_buffer = (ONSBuf *)SDL_Surface_get_pixels(effect_src_surface);
 
-    ONSBuf *dst_buffer = (ONSBuf *)accumulation_surface->pixels;
+    ONSBuf *dst_buffer = (ONSBuf *)SDL_Surface_get_pixels(accumulation_surface);
     const int factor = 32;
     const int maxlevel = 30;
     level += factor - maxlevel;
@@ -805,7 +805,7 @@ void ONScripterLabel::effectTrvswave( char *params, int duration )
         ampl = TRVSWAVE_AMPLITUDE * 2 * (duration - effect_counter) / duration;
         wvlen = (Sint16)(1.0/(((1.0/TRVSWAVE_WVLEN_END - 1.0/TRVSWAVE_WVLEN_START) * 2 * (duration - effect_counter) / duration) + (1.0/TRVSWAVE_WVLEN_START)));
     }
-    SDL_FillRect( accumulation_surface, NULL, SDL_MapRGBA( accumulation_surface->format, 0, 0, 0, 0xff ) );
+    SDL_FillRect( accumulation_surface, NULL, SDL_MapRGBA( SDL_Surface_get_format(accumulation_surface), 0, 0, 0, 0xff ) );
     for (int i=0; i<screen_height; i++) {
         int theta = TRIG_TABLE_SIZE * y_offset / wvlen;
         while (theta < 0) theta += TRIG_TABLE_SIZE;
@@ -865,8 +865,8 @@ void ONScripterLabel::effectWhirl( char *params, int duration )
 
     SDL_LockSurface( effect_tmp_surface );
     SDL_LockSurface( accumulation_surface );
-    ONSBuf *src_buffer = (ONSBuf *)effect_tmp_surface->pixels;
-    ONSBuf *dst_buffer = (ONSBuf *)accumulation_surface->pixels;
+    ONSBuf *src_buffer = (ONSBuf *)SDL_Surface_get_pixels(effect_tmp_surface);
+    ONSBuf *dst_buffer = (ONSBuf *)SDL_Surface_get_pixels(accumulation_surface);
     int *whirl_buffer = whirl_table;
 
     for ( int i=0 ; i<screen_height ; ++i ){
@@ -964,11 +964,11 @@ void ONScripterLabel::buildBreakupMask()
 
     SDL_LockSurface( effect_src_surface );
     SDL_LockSurface( effect_dst_surface );
-    ONSBuf *buffer1 = (ONSBuf *)effect_src_surface->pixels;
-    ONSBuf *buffer2 = (ONSBuf *)effect_dst_surface->pixels;
-    SDL_PixelFormat *fmt = effect_dst_surface->format;
-    int surf_w = effect_src_surface->w;
-    int surf_h = effect_src_surface->h;
+    ONSBuf *buffer1 = (ONSBuf *)SDL_Surface_get_pixels(effect_src_surface);
+    ONSBuf *buffer2 = (ONSBuf *)SDL_Surface_get_pixels(effect_dst_surface);
+    SDL_PixelFormat *fmt = SDL_Surface_get_format(effect_dst_surface);
+    int surf_w = SDL_Surface_get_w(effect_src_surface);
+    int surf_h = SDL_Surface_get_h(effect_src_surface);
     int x1=w, y1=-1, x2=0, y2=0;
     for (int i=0; i<h; ++i) {
         for (int j=0; j<w; ++j) {
@@ -1143,8 +1143,8 @@ void ONScripterLabel::effectBreakup( char *params, int duration )
 
     SDL_LockSurface( chr );
     SDL_LockSurface( dst );
-    ONSBuf *chr_buf = (ONSBuf *)chr->pixels;
-    ONSBuf *buffer  = (ONSBuf *)dst->pixels;
+    ONSBuf *chr_buf = (ONSBuf *)SDL_Surface_get_pixels(chr);
+    ONSBuf *buffer  = (ONSBuf *)SDL_Surface_get_pixels(dst);
     bool *msk_buf = breakup_cellforms;
 
     for (int n=0; n<n_cells; ++n) {
@@ -1157,11 +1157,11 @@ void ONScripterLabel::effectBreakup( char *params, int duration )
                 for (int j=0; j<BREAKUP_CELLWIDTH; ++j) {
                     int x = rect.x + j;
                     int y = rect.y + i;
-                    if ((x < 0) || (x >= dst->w) || (x >= chr->w) ||
-                        (y < 0) || (y >= dst->h) || (y >= chr->h))
+                    if ((x < 0) || (x >= SDL_Surface_get_w(dst)) || (x >= SDL_Surface_get_w(chr)) ||
+                        (y < 0) || (y >= SDL_Surface_get_h(dst)) || (y >= SDL_Surface_get_h(chr)))
                         continue;
                     if ( breakup_mask[y*BREAKUP_CELLWIDTH*BREAKUP_MAX_CELL_X + x] )
-                        buffer[y*dst->w + x] = chr_buf[y*chr->w + x];
+                        buffer[y * SDL_Surface_get_w(dst) + x] = chr_buf[y * SDL_Surface_get_w(chr) + x];
                 }
             }
         }
@@ -1171,13 +1171,13 @@ void ONScripterLabel::effectBreakup( char *params, int duration )
                 for (int j=0; j<BREAKUP_CELLWIDTH; j++) {
                     int x = rect.x + j;
                     int y = rect.y + i;
-                    if ((x < 0) || (x >= dst->w) || (x >= chr->w) ||
-                        (y < 0) || (y >= dst->h) || (y >= chr->h))
+                    if ((x < 0) || (x >= SDL_Surface_get_w(dst)) || (x >= SDL_Surface_get_w(chr)) ||
+                        (y < 0) || (y >= SDL_Surface_get_h(dst)) || (y >= SDL_Surface_get_h(chr)))
                         continue;
                     int msk_off = BREAKUP_CELLWIDTH*breakup_cells[n].radius;
                     if ( msk_buf[BREAKUP_CELLWIDTH * BREAKUP_CELLFORMS * i + msk_off + j] &&
                          breakup_mask[y*BREAKUP_CELLWIDTH*BREAKUP_MAX_CELL_X + x] )
-                        buffer[y*dst->w + x] = chr_buf[y*chr->w + x];
+                        buffer[y * SDL_Surface_get_w(dst) + x] = chr_buf[y * SDL_Surface_get_w(chr) + x];
                 }
             }
         }
@@ -1193,17 +1193,17 @@ void ONScripterLabel::effectBreakup( char *params, int duration )
                 for (int j=0; j<BREAKUP_CELLWIDTH; j++) {
                     int x = disp_x + rect.x + j;
                     int y = disp_y + rect.y + i;
-                    if ((x < 0) || (x >= dst->w) ||
-                        (y < 0) || (y >= dst->h))
+                    if ((x < 0) || (x >= SDL_Surface_get_w(dst)) ||
+                        (y < 0) || (y >= SDL_Surface_get_h(dst)))
                         continue;
-                    if (((rect.x+j)<0) || ((rect.x+j) >= chr->w) ||
-                        ((rect.y+i)<0) || ((rect.y+i) >= chr->h))
+                    if (((rect.x+j)<0) || ((rect.x + j) >= SDL_Surface_get_w(chr)) ||
+                        ((rect.y+i)<0) || ((rect.y + i) >= SDL_Surface_get_h(chr)))
                         continue;
                     int msk_off = BREAKUP_CELLWIDTH*breakup_cells[n].radius;
                     if ( msk_buf[BREAKUP_CELLWIDTH * BREAKUP_CELLFORMS * i + msk_off + j] &&
                          breakup_mask[(rect.y+i)*BREAKUP_CELLWIDTH*BREAKUP_MAX_CELL_X + rect.x + j] )
-                        buffer[y*dst->w + x] =
-                            chr_buf[(rect.y+i)*chr->w + rect.x + j];
+                        buffer[y * SDL_Surface_get_w(dst) + x] =
+                            chr_buf[(rect.y + i) * SDL_Surface_get_w(chr) + rect.x + j];
                 }
             }
         }

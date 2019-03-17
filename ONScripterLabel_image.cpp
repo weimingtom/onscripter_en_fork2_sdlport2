@@ -62,21 +62,10 @@ SDL_Surface *ONScripterLabel::loadImage(char *filename, bool *has_alpha )
     Uint32 colorkey = 0;
 
     if ( has_alpha ){
-        *has_alpha = (tmp->format->Amask != 0);
-        if (!(*has_alpha) && (tmp->flags & SDL_SRCCOLORKEY)){
-            has_colorkey = true;
-            colorkey = tmp->format->colorkey;
-#if 0
-            if (tmp->format->palette){
-                //palette will be converted to RGBA, so don't do colorkey check
-                has_colorkey = false;
-            }
-#endif
-            *has_alpha = true;
-        }
+        *has_alpha = (SDL_Surface_get_format(tmp)->Amask != 0);
     }
 
-    SDL_Surface *ret = SDL_ConvertSurface( tmp, image_surface->format, SDL_SWSURFACE );
+    SDL_Surface *ret = SDL_ConvertSurface( tmp, SDL_Surface_get_format(image_surface), SDL_SWSURFACE );
     SDL_FreeSurface( tmp );
 
     //  A PNG image may contain an alpha channel, which complicates
@@ -104,21 +93,21 @@ SDL_Surface *ONScripterLabel::loadImage(char *filename, bool *has_alpha )
             *has_alpha = false;
         else if (png_mask_type == PNG_MASK_AUTODETECT) {
             SDL_LockSurface(ret);
-            const Uint32 aval = *(Uint32*)ret->pixels & ret->format->Amask;
-            if (aval != ret->format->Amask) goto breakalpha;
+            const Uint32 aval = *(Uint32*)SDL_Surface_get_pixels(ret) & SDL_Surface_get_format(ret)->Amask;
+            if (aval != SDL_Surface_get_format(ret)->Amask) goto breakalpha;
             *has_alpha = false;
 #ifdef _MSC_VER
 	{
 #endif
-            for (int y=0; y<ret->h; ++y) {
-                Uint32* pixbuf = (Uint32*)((char*)ret->pixels + y * ret->pitch);
-                for (int x=ret->w; x>0; --x, ++pixbuf) {
+            for (int y=0; y < SDL_Surface_get_h(ret); ++y) {
+                Uint32* pixbuf = (Uint32*)((char*)SDL_Surface_get_pixels(ret) + y * SDL_Surface_get_pitch(ret));
+                for (int x = SDL_Surface_get_w(ret); x>0; --x, ++pixbuf) {
                     // Resolving ambiguity per Tatu's patch, 20081118.
                     // I note that this technically changes the meaning of the
                     // code, since != is higher-precedence than &, but this
                     // version is obviously what I intended when I wrote this.
                     // Has this been broken all along?  :/  -- Haeleth
-                    if ((*pixbuf & ret->format->Amask) != aval) {
+                    if ((*pixbuf & SDL_Surface_get_format(ret)->Amask) != aval) {
                         *has_alpha = true;
                         goto breakalpha;
                     }
@@ -130,14 +119,14 @@ SDL_Surface *ONScripterLabel::loadImage(char *filename, bool *has_alpha )
           breakalpha:
             if (!*has_alpha && has_colorkey) {
                 // has a colorkey, so run a match against rgb values
-                const Uint32 aval = colorkey & ~(ret->format->Amask);
-                if (aval == (*(Uint32*)ret->pixels & ~(ret->format->Amask)))
+                const Uint32 aval = colorkey & ~(SDL_Surface_get_format(ret)->Amask);
+                if (aval == (*(Uint32*)SDL_Surface_get_pixels(ret) & ~(SDL_Surface_get_format(ret)->Amask)))
                     goto breakkey;
                 *has_alpha = false;
-                for (int y=0; y<ret->h; ++y) {
-                    Uint32* pixbuf = (Uint32*)((char*)ret->pixels + y * ret->pitch);
-                    for (int x=ret->w; x>0; --x, ++pixbuf) {
-                        if ((*pixbuf & ~(ret->format->Amask)) == aval) {
+                for (int y = 0; y < SDL_Surface_get_h(ret); ++y) {
+                    Uint32* pixbuf = (Uint32*)((char*)SDL_Surface_get_pixels(ret) + y * SDL_Surface_get_pitch(ret));
+                    for (int x = SDL_Surface_get_w(ret); x>0; --x, ++pixbuf) {
+                        if ((*pixbuf & ~(SDL_Surface_get_format(ret)->Amask)) == aval) {
                             *has_alpha = true;
                             goto breakkey;
                         }
@@ -185,7 +174,7 @@ SDL_Surface *ONScripterLabel::createRectangleSurface(char *filename)
         while (filename[c] == ' ' || filename[c] == '\t') c++;
     }
 
-    SDL_PixelFormat *fmt = image_surface->format;
+    SDL_PixelFormat *fmt = SDL_Surface_get_format(image_surface);
     SDL_Surface *tmp = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
                                             fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
@@ -202,7 +191,7 @@ SDL_Surface *ONScripterLabel::createRectangleSurface(char *filename)
         rect.w = w*(i+1)/n - rect.x;
         if (i == n-1) rect.w = w - rect.x;
         rect.h = h;
-        SDL_FillRect(tmp, &rect, SDL_MapRGBA( accumulation_surface->format, col[0], col[1], col[2], 0xff));
+        SDL_FillRect(tmp, &rect, SDL_MapRGBA( SDL_Surface_get_format(accumulation_surface), col[0], col[1], col[2], 0xff));
     }
     
     return tmp;
@@ -340,12 +329,12 @@ void ONScripterLabel::alphaMaskBlend( SDL_Surface *mask_surface, int trans_mode,
     SDL_LockSurface( dst );
     if ( mask_surface ) SDL_LockSurface( mask_surface );
     
-    ONSBuf *src1_buffer = (ONSBuf *)src1->pixels + src1->w * rect.y + rect.x;
-    ONSBuf *src2_buffer = (ONSBuf *)src2->pixels + src2->w * rect.y + rect.x;
-    ONSBuf *dst_buffer  = (ONSBuf *)dst->pixels + dst->w * rect.y + rect.x;
+    ONSBuf *src1_buffer = (ONSBuf *)SDL_Surface_get_pixels(src1) + SDL_Surface_get_w(src1) * rect.y + rect.x;
+    ONSBuf *src2_buffer = (ONSBuf *)SDL_Surface_get_pixels(src2) + SDL_Surface_get_w(src2) * rect.y + rect.x;
+    ONSBuf *dst_buffer  = (ONSBuf *)SDL_Surface_get_pixels(dst) + SDL_Surface_get_w(dst) * rect.y + rect.x;
 
     const int rwidth = screen_width - rect.w;
-    SDL_PixelFormat *fmt = dst->format;
+    SDL_PixelFormat *fmt = SDL_Surface_get_format(dst);
     Uint32 overflow_mask = 0xffffffff;
     if ( trans_mode != ALPHA_BLEND_FADE_MASK )
         overflow_mask = ~fmt->Bmask;
@@ -355,9 +344,9 @@ void ONScripterLabel::alphaMaskBlend( SDL_Surface *mask_surface, int trans_mode,
     if (( trans_mode == ALPHA_BLEND_FADE_MASK ||
           trans_mode == ALPHA_BLEND_CROSSFADE_MASK ) && mask_surface) {
         for ( int i=0 ; i<rect.h ; i++ ) {
-            ONSBuf *mask_buffer = (ONSBuf *)mask_surface->pixels + mask_surface->w * ((rect.y+i)%mask_surface->h);
+            ONSBuf *mask_buffer = (ONSBuf *)SDL_Surface_get_pixels(mask_surface) + SDL_Surface_get_w(mask_surface) * ((rect.y+i) % SDL_Surface_get_h(mask_surface));
 
-            int offset = rect.x % mask_surface->w;
+            int offset = rect.x % SDL_Surface_get_w(mask_surface);
             for ( int j=rect.w ; j!=0 ; j-- ){
                 Uint32 mask2 = 0;
                 Uint32 mask = *(mask_buffer + offset) & fmt->Bmask;
@@ -367,7 +356,7 @@ void ONScripterLabel::alphaMaskBlend( SDL_Surface *mask_surface, int trans_mode,
                 }
                 BLEND_MASK_PIXEL();
                 ++dst_buffer, ++src1_buffer, ++src2_buffer, ++offset;
-                if (offset >= mask_surface->w) offset = 0;
+                if (offset >= SDL_Surface_get_w(mask_surface)) offset = 0;
             }
             src1_buffer += rwidth;
             src2_buffer += rwidth;
@@ -414,7 +403,7 @@ void ONScripterLabel::alphaBlendText( SDL_Surface *dst_surface, SDL_Rect dst_rec
 
     /* ---------------------------------------- */
     /* 2nd clipping */
-    SDL_Rect clip_rect = {0, 0, dst_surface->w, dst_surface->h};
+    SDL_Rect clip_rect = {0, 0, SDL_Surface_get_w(dst_surface), SDL_Surface_get_h(dst_surface)};
     if ( AnimationInfo::doClipping( &dst_rect, &clip_rect, &clipped_rect ) ) return;
     
     x2 += clipped_rect.x;
@@ -436,28 +425,28 @@ void ONScripterLabel::alphaBlendText( SDL_Surface *dst_surface, SDL_Rect dst_rec
     Uint32 src_color3 = src_color1 | src_color2;
 #endif
 
-    ONSBuf *dst_buffer = (ONSBuf *)dst_surface->pixels +
-                         dst_surface->w * dst_rect.y + dst_rect.x;
+    ONSBuf *dst_buffer = (ONSBuf *)SDL_Surface_get_pixels(dst_surface) +
+                         SDL_Surface_get_w(dst_surface) * dst_rect.y + dst_rect.x;
 
     if (!rotate_flag){
-        unsigned char *src_buffer = (unsigned char*)txt_surface->pixels +
-                                    txt_surface->pitch * y2 + x2;
+        unsigned char *src_buffer = (unsigned char*)SDL_Surface_get_pixels(txt_surface) +
+                                    SDL_Surface_get_pitch(txt_surface) * y2 + x2;
         for ( int i=dst_rect.h ; i!=0 ; i-- ){
             for ( int j=dst_rect.w ; j!=0 ; j--, dst_buffer++, src_buffer++ ){
                 BLEND_TEXT();
             }
-            dst_buffer += dst_surface->w - dst_rect.w;
-            src_buffer += txt_surface->pitch - dst_rect.w;
+            dst_buffer += SDL_Surface_get_w(dst_surface) - dst_rect.w;
+            src_buffer += SDL_Surface_get_pitch(txt_surface) - dst_rect.w;
         }
     }
     else{
         for ( int i=0 ; i<dst_rect.h ; i++ ){
-            unsigned char *src_buffer = (unsigned char*)txt_surface->pixels + txt_surface->pitch*(txt_surface->h - x2 - 1) + y2 + i;
+            unsigned char *src_buffer = (unsigned char*)SDL_Surface_get_pixels(txt_surface) + SDL_Surface_get_pitch(txt_surface) * (SDL_Surface_get_h(txt_surface) - x2 - 1) + y2 + i;
             for ( int j=dst_rect.w ; j!=0 ; j--, dst_buffer++ ){
                 BLEND_TEXT();
-                src_buffer -= txt_surface->pitch;
+                src_buffer -= SDL_Surface_get_pitch(txt_surface);
             }
-            dst_buffer += dst_surface->w - dst_rect.w;
+            dst_buffer += SDL_Surface_get_w(dst_surface) - dst_rect.w;
         }
     }
     
@@ -468,13 +457,13 @@ void ONScripterLabel::alphaBlendText( SDL_Surface *dst_surface, SDL_Rect dst_rec
 void ONScripterLabel::makeNegaSurface( SDL_Surface *surface, SDL_Rect &clip )
 {
     SDL_LockSurface( surface );
-    ONSBuf *buf = (ONSBuf *)surface->pixels + clip.y * surface->w + clip.x;
+    ONSBuf *buf = (ONSBuf *)SDL_Surface_get_pixels(surface) + clip.y * SDL_Surface_get_w(surface) + clip.x;
 
-    ONSBuf mask = surface->format->Rmask | surface->format->Gmask | surface->format->Bmask;
+    ONSBuf mask = SDL_Surface_get_format(surface)->Rmask | SDL_Surface_get_format(surface)->Gmask | SDL_Surface_get_format(surface)->Bmask;
     for ( int i=clip.h ; i>0 ; i-- ){
         for ( int j=clip.w ; j>0 ; j-- )
             *buf++ ^= mask;
-        buf += surface->w - clip.w;
+        buf += SDL_Surface_get_w(surface) - clip.w;
     }
 
     SDL_UnlockSurface( surface );
@@ -483,7 +472,7 @@ void ONScripterLabel::makeNegaSurface( SDL_Surface *surface, SDL_Rect &clip )
 void ONScripterLabel::makeMonochromeSurface( SDL_Surface *surface, SDL_Rect &clip )
 {
     SDL_LockSurface( surface );
-    ONSBuf *buffer = (ONSBuf *)surface->pixels + clip.y * surface->w + clip.x;
+    ONSBuf *buffer = (ONSBuf *)SDL_Surface_get_pixels(surface) + clip.y * SDL_Surface_get_w(surface) + clip.x;
 
     for ( int i=clip.h ; i>0 ; i-- ){
         for ( int j=clip.w ; j>0 ; j--, buffer++ ){
@@ -492,7 +481,7 @@ void ONScripterLabel::makeMonochromeSurface( SDL_Surface *surface, SDL_Rect &cli
             // might add a parameter to "monocro" to allow choosing 77/151/28
             MONOCRO_PIXEL();
         }
-        buffer += surface->w - clip.w;
+        buffer += SDL_Surface_get_w(surface) - clip.w;
     }
 
     SDL_UnlockSurface( surface );
@@ -502,7 +491,7 @@ void ONScripterLabel::refreshSurface( SDL_Surface *surface, SDL_Rect *clip_src, 
 {
     if (refresh_mode == REFRESH_NONE_MODE) return;
 
-    SDL_Rect clip = {0, 0, surface->w, surface->h};
+    SDL_Rect clip = {0, 0, SDL_Surface_get_w(surface), SDL_Surface_get_h(surface)};
     if (clip_src) if ( AnimationInfo::doClipping( &clip, clip_src ) ) return;
 
     int i, top;
@@ -672,20 +661,20 @@ void ONScripterLabel::createBackground()
 
         bg_info.fill(0, 0, 0, 0xff);
         if (anim.image_surface){
-            SDL_Rect src_rect = {0, 0, anim.image_surface->w, anim.image_surface->h};
+            SDL_Rect src_rect = {0, 0, SDL_Surface_get_w(anim.image_surface), SDL_Surface_get_h(anim.image_surface)};
             SDL_Rect dst_rect = {0, 0, screen_width, screen_height};
-            if (screen_width >= anim.image_surface->w){
-                dst_rect.x = (screen_width - anim.image_surface->w) / 2;
+            if (screen_width >= SDL_Surface_get_w(anim.image_surface)){
+                dst_rect.x = (screen_width - SDL_Surface_get_w(anim.image_surface)) / 2;
             }
             else{
-                src_rect.x = (anim.image_surface->w - screen_width) / 2;
+                src_rect.x = (SDL_Surface_get_w(anim.image_surface) - screen_width) / 2;
                 src_rect.w = screen_width;
             }
-            if (screen_height >= anim.image_surface->h){
-                dst_rect.y = (screen_height - anim.image_surface->h) / 2;
+            if (screen_height >= SDL_Surface_get_h(anim.image_surface)){
+                dst_rect.y = (screen_height - SDL_Surface_get_h(anim.image_surface)) / 2;
             }
             else{
-                src_rect.y = (anim.image_surface->h - screen_height) / 2;
+                src_rect.y = (SDL_Surface_get_h(anim.image_surface) - screen_height) / 2;
                 src_rect.h = screen_height;
             }
             bg_info.copySurface(anim.image_surface, &src_rect, &dst_rect);

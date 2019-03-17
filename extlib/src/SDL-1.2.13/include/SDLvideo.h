@@ -66,13 +66,24 @@ typedef struct {
 } SDL_VideoInfo;
 
 typedef struct SDL_Surface {
-	Uint32	flags; //FIXME:not implemented
-	SDL_PixelFormat *format;
-	int		w;
-	int		h;
-	WORD	pitch;
-	void	*pixels;
+	SDL_PixelFormat *_format;
+	int	_w;
+	int	_h;
+	WORD _pitch;
+	void *_pixels;
 } SDL_Surface;
+
+extern SDL_PixelFormat *SDL_Surface_get_format(SDL_Surface *surface);
+extern int SDL_Surface_get_w(SDL_Surface *surface);
+extern int SDL_Surface_get_h(SDL_Surface *surface);
+extern WORD SDL_Surface_get_pitch(SDL_Surface *surface);
+extern void *SDL_Surface_get_pixels(SDL_Surface *surface);
+
+extern void SDL_Surface_set_format(SDL_Surface *surface, SDL_PixelFormat *format);
+extern void SDL_Surface_set_w(SDL_Surface *surface, int w);
+extern void SDL_Surface_set_h(SDL_Surface *surface, int h);
+extern void SDL_Surface_set_pitch(SDL_Surface *surface, WORD pitch);
+extern void SDL_Surface_set_pixels(SDL_Surface *surface, void *pixels);
 
 //hardware surface
 extern void SDL_WM_SetCaption(const char *title, const char *icon);
@@ -92,9 +103,8 @@ extern int SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color);
 extern Uint32 SDL_MapRGB(const SDL_PixelFormat * const format, const Uint8 r, const Uint8 g, const Uint8 b);
 extern Uint32 SDL_MapRGBA(const SDL_PixelFormat * const format, const Uint8 r, const Uint8 g, const Uint8 b, const Uint8 a);
 extern int SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect);
-#define SDL_SRCCOLORKEY	0x00001000
-extern int SDL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha);
 #define SDL_ALPHA_OPAQUE 255
+extern int SDL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha);
 
 typedef struct SDL_SysWMinfo {
 	HWND window;

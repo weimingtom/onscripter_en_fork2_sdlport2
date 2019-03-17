@@ -64,10 +64,10 @@ static SDL_Surface *cresurf_sw(DWORD flags, int width, int height, int depth, DW
 		memset(ret, 0, size);
 		inf = (SURFINF)(ret + 1);
 		fmt = (SDL_PixelFormat *)(inf + 1);
-		ret->format = fmt;
-		ret->w = width;
-		ret->h = height;
-		ret->pitch = (WORD)(width * xalign);
+		SDL_Surface_set_format(ret, fmt);
+		SDL_Surface_set_w(ret, width);
+		SDL_Surface_set_h(ret, height);
+		SDL_Surface_set_pitch(ret, (WORD)(width * xalign));
 #if 0
 		if (depth == 8) {
 			pal = (SDL_Palette *)(fmt + 1);
@@ -80,7 +80,7 @@ static SDL_Surface *cresurf_sw(DWORD flags, int width, int height, int depth, DW
 		else 
 #endif
 		{
-			ret->pixels = (void *)(fmt + 1);
+			SDL_Surface_set_pixels(ret, (void *)(fmt + 1));
 			fmt->Rmask = Rmask;
 			fmt->Gmask = Gmask;
 			fmt->Bmask = Bmask;
@@ -139,11 +139,11 @@ static SDL_Surface *cresurf_hw(DWORD flags, int width, int height, int depth, DW
 	memset(ret, 0, size);
 	inf = (SURFINF)(ret + 1);
 	fmt = (SDL_PixelFormat *)(inf + 1);
-	ret->format = fmt;
-	ret->w = width;
-	ret->h = height;
-	ret->pitch = (WORD)(((width * depth / 8) + 3) & (~3));
-	ret->pixels = image;
+	SDL_Surface_set_format(ret, fmt);
+	SDL_Surface_set_w(ret, width);
+	SDL_Surface_set_h(ret, height);
+	SDL_Surface_set_pitch(ret, (WORD)(((width * depth / 8) + 3) & (~3)));
+	SDL_Surface_set_pixels(ret, image);
 	inf->type = SURFTYPE_BITMAP;
 	inf->hbmp = hbmp;
 	fmt->BitsPerPixel = depth;
@@ -215,7 +215,7 @@ void __sdl_videopaint(HWND hWnd, SDL_Surface *screen) {
 			hdc = GetDC(hWnd);
 			hmemdc = CreateCompatibleDC(hdc);
 			hbitmap = (HBITMAP)SelectObject(hmemdc, inf->hbmp);
-			BitBlt(hdc, 0, 0, screen->w, screen->h, hmemdc, 0, 0, SRCCOPY);
+			BitBlt(hdc, 0, 0, SDL_Surface_get_w(screen), SDL_Surface_get_h(screen), hmemdc, 0, 0, SRCCOPY);
 			SelectObject(hmemdc, hbitmap);
 			DeleteDC(hmemdc);
 			ReleaseDC(hWnd, hdc);
@@ -487,6 +487,57 @@ Uint32 SDL_ReadLE32 (SDL_RWops *src)
 	SDL_RWread(src, &value, (sizeof value), 1);
 	//return(SDL_SwapLE32(value));
 	return is_little_endian() ? value : SDL_Swap32(value);
+}
+
+
+SDL_PixelFormat *SDL_Surface_get_format(SDL_Surface *surface)
+{
+	return surface->_format;
+}
+
+int SDL_Surface_get_w(SDL_Surface *surface)
+{
+	return surface->_w;
+}
+
+int SDL_Surface_get_h(SDL_Surface *surface)
+{
+	return surface->_h;
+}
+
+WORD SDL_Surface_get_pitch(SDL_Surface *surface)
+{
+	return surface->_pitch;
+}
+
+void *SDL_Surface_get_pixels(SDL_Surface *surface)
+{
+	return surface->_pixels;
+}
+
+void SDL_Surface_set_format(SDL_Surface *surface, SDL_PixelFormat *format)
+{
+	surface->_format = format;
+}
+
+void SDL_Surface_set_w(SDL_Surface *surface, int w)
+{
+	surface->_w = w;
+}
+
+void SDL_Surface_set_h(SDL_Surface *surface, int h)
+{
+	surface->_h = h;
+}
+
+void SDL_Surface_set_pitch(SDL_Surface *surface, WORD pitch)
+{
+	surface->_pitch = pitch;
+}
+
+void SDL_Surface_set_pixels(SDL_Surface *surface, void *pixels)
+{
+	surface->_pixels = pixels;
 }
 
 

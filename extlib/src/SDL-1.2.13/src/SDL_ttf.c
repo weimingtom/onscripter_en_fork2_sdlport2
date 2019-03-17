@@ -133,13 +133,13 @@ SDL_Surface *TTF_RenderGlyph_Shaded(TTF_Font *font, Uint16 ch, SDL_Color fg, SDL
 #endif
 
 	src = (BYTE *)fhdl->image;
-	dst = (BYTE *)ret->pixels;
+	dst = (BYTE *)SDL_Surface_get_pixels(ret);
 	do {
 		for (x=0; x<fntsize.cx; x++) {
 			dst[x] = ((src[x / 8] >> ((x ^ 7) & 7)) & 1) ? 0xff : 0;
 		} //0xff;// FIXME: I don't know why (... &1) is wrong, but ((... &1) ? 0xff : 0) is right
 		src += fhdl->bmpalign;
-		dst += ret->pitch;
+		dst += SDL_Surface_get_pitch(ret);
 	} while(--fntsize.cy);
 
 trus_exit:

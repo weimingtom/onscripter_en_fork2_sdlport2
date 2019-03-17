@@ -1946,13 +1946,13 @@ void ONScripterLabel::displayTextWindow( SDL_Surface *surface, SDL_Rect &clip )
 
         if ( AnimationInfo::doClipping( &rect, &clip ) ) return;
 
-        if ( rect.x + rect.w > surface->w ) rect.w = surface->w - rect.x;
-        if ( rect.y + rect.h > surface->h ) rect.h = surface->h - rect.y;
+        if ( rect.x + rect.w > SDL_Surface_get_w(surface) ) rect.w = SDL_Surface_get_w(surface) - rect.x;
+        if ( rect.y + rect.h > SDL_Surface_get_h(surface) ) rect.h = SDL_Surface_get_h(surface) - rect.y;
 
         SDL_LockSurface( surface );
-        ONSBuf *buf = (ONSBuf *)surface->pixels + rect.y * surface->w + rect.x;
+        ONSBuf *buf = (ONSBuf *)SDL_Surface_get_pixels(surface) + rect.y * SDL_Surface_get_w(surface) + rect.x;
 
-        SDL_PixelFormat *fmt = surface->format;
+        SDL_PixelFormat *fmt = SDL_Surface_get_format(surface);
         int color[3];
         color[0] = current_font->window_color[0] + 1;
         color[1] = current_font->window_color[1] + 1;
@@ -1964,7 +1964,7 @@ void ONScripterLabel::displayTextWindow( SDL_Surface *surface, SDL_Rect &clip )
                     (((*buf & fmt->Gmask) >> fmt->Gshift) * color[1] >> 8) << fmt->Gshift |
                     (((*buf & fmt->Bmask) >> fmt->Bshift) * color[2] >> 8) << fmt->Bshift;
             }
-            buf += surface->w - rect.w;
+            buf += SDL_Surface_get_w(surface) - rect.w;
         }
 
         SDL_UnlockSurface( surface );

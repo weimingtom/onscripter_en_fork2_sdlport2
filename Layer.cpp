@@ -132,7 +132,7 @@ void Scratch::draw(SDL_Surface* surface, SDL_Rect clip)
          (x1 >= (clip.x + clip.w)) || (x2 >= (clip.x + clip.w)) )
         return;
 
-    const int sp = surface->pitch;
+    const int sp = SDL_Surface_get_pitch(surface);
     float dx = (float)(x2 - x1) / width;
     float realx = (float) x1;
     int y = 0;
@@ -145,7 +145,7 @@ void Scratch::draw(SDL_Surface* surface, SDL_Rect clip)
         int lx = (int) floor(realx + 0.5);
         if (lx >= clip.x && lx < clip.x + clip.w) { // Only draw within the clipping rectangle.
             // Get pixel...
-            Uint32* p = (Uint32*)((char*)surface->pixels + y * sp + lx * 4);
+            Uint32* p = (Uint32*)((char*)SDL_Surface_get_pixels(surface) + y * sp + lx * 4);
             const Uint32 c = *p;
             // ...add to or subtract from its colour...
             int c1 = (c & 0xff) + offs, c2 = ((c >> 8) & 0xff) + offs, c3 = ((c >> 16) & 0xff) + offs;
@@ -231,8 +231,8 @@ void OldMovieLayer::om_init()
     for (int i = 0; i < MAX_NOISE; i++) {
         NoiseSurface[i] = AnimationInfo::allocSurface(width, height);
         SDL_LockSurface(NoiseSurface[i]);
-        char* px = (char*) NoiseSurface[i]->pixels;
-        const int pt = NoiseSurface[i]->pitch;
+        char* px = (char*) SDL_Surface_get_pixels(NoiseSurface[i]);
+        const int pt = SDL_Surface_get_pitch(NoiseSurface[i]);
         for (int y = 0; y < height; ++y, px += pt) {
             Uint32* row = (Uint32*) px;
             for (int x = 0; x < width; ++x, ++row) {
@@ -255,7 +255,7 @@ void OldMovieLayer::om_init()
 	for (; r.y < MAX_GLOW; r.y++) {
 #endif
         const int ry = (r.y * 30 / MAX_GLOW) + 4;
-        SDL_FillRect(GlowSurface, &r, SDL_MapRGB(GlowSurface->format, ry, ry, ry));
+        SDL_FillRect(GlowSurface, &r, SDL_MapRGB(SDL_Surface_get_format(GlowSurface), ry, ry, ry));
     }
 }
 
@@ -333,14 +333,14 @@ static void BlurOnSurface(SDL_Surface* src, SDL_Surface* dst, SDL_Rect clip, int
     const int length = ((srcx + clip.w > width) ? (width - srcx) : clip.w) * 4;
     int rows = clip.h;
     const int skipfirstrows = (srcy < 0) ? -srcy : 0;
-    const int srcp = src->pitch;
-    const int dstp = dst->pitch;
+    const int srcp = SDL_Surface_get_pitch(src);
+    const int dstp = SDL_Surface_get_pitch(dst);
 
     SDL_LockSurface(src);
     SDL_LockSurface(dst);
-    unsigned char* src1px = ((unsigned char*) src->pixels) + srcx * 4 + srcy * srcp;
-    unsigned char* src2px = ((unsigned char*) src->pixels) + clip.x * 4 + clip.y * srcp;
-    unsigned char* dstpx = ((unsigned char*) dst->pixels) + clip.x * 4 + clip.y * dstp;
+    unsigned char* src1px = ((unsigned char*) SDL_Surface_get_pixels(src)) + srcx * 4 + srcy * srcp;
+    unsigned char* src2px = ((unsigned char*) SDL_Surface_get_pixels(src)) + clip.x * 4 + clip.y * srcp;
+    unsigned char* dstpx = ((unsigned char*) SDL_Surface_get_pixels(dst)) + clip.x * 4 + clip.y * dstp;
 
     // If the vertical offset is positive, we are reading one copy from (x, -1), so we need to
     // skip the first scanline to avoid reading outside the source surface.
@@ -362,8 +362,8 @@ static void BlurOnSurface(SDL_Surface* src, SDL_Surface* dst, SDL_Rect clip, int
     // If the horizontal offset is -1, the rightmost column has not been written to.
     // Rectify that by copying it directly from the source image.
     if (rx && (clip.x + clip.w >= width)) {
-        Uint32* r = ((Uint32*) src->pixels) + (width - 1) + clip.y * width;
-        Uint32* d = ((Uint32*) dst->pixels) + (width - 1) + clip.y * width;
+        Uint32* r = ((Uint32*) SDL_Surface_get_pixels(src)) + (width - 1) + clip.y * width;
+        Uint32* d = ((Uint32*) SDL_Surface_get_pixels(dst)) + (width - 1) + clip.y * width;
         while (clip.h--) {
             *d = *r;
             d += width;
@@ -401,13 +401,13 @@ void OldMovieLayer::refresh(SDL_Surface *surface, SDL_Rect &clip)
     SDL_LockSurface(surface);
     SDL_LockSurface(NoiseSurface[ns]);
     SDL_LockSurface(GlowSurface);
-    unsigned char* g = (unsigned char*)GlowSurface->pixels + (gv * glow_level / 4) * GlowSurface->pitch;
-    const int sp = surface->pitch;
+    unsigned char* g = (unsigned char*)SDL_Surface_get_pixels(GlowSurface) + (gv * glow_level / 4) * SDL_Surface_get_pitch(GlowSurface);
+    const int sp = SDL_Surface_get_pitch(surface);
     if ((clip.x == 0) && (clip.y == 0) && (clip.w == width) && (clip.h == height)) {
         // If no clipping rectangle is defined, we can apply the noise in one go.
-        unsigned char* s = (unsigned char*) surface->pixels;
+        unsigned char* s = (unsigned char*) SDL_Surface_get_pixels(surface);
         if (noise_level > 0)
-            AnimationInfo::imageFilterSubFrom(s, (unsigned char*) NoiseSurface[ns]->pixels, sp * surface->h);
+            AnimationInfo::imageFilterSubFrom(s, (unsigned char*) SDL_Surface_get_pixels(NoiseSurface[ns]), sp * SDL_Surface_get_h(surface));
         // Since the glow is stored as a single scanline for each level, we always apply
         // the glow scanline by scanline.
         if (glow_level > 0) {
@@ -419,14 +419,14 @@ void OldMovieLayer::refresh(SDL_Surface *surface, SDL_Rect &clip)
         // Otherwise we do everything scanline by scanline.
         const int length = clip.w * 4;
         if (noise_level > 0) {
-            const int np = NoiseSurface[ns]->pitch;
-            unsigned char* s = ((unsigned char*) surface->pixels) + clip.x * 4 + clip.y * sp;
-            unsigned char* n = ((unsigned char*) NoiseSurface[ns]->pixels) + clip.x * 4 + clip.y * np;
+            const int np = SDL_Surface_get_pitch(NoiseSurface[ns]);
+            unsigned char* s = ((unsigned char*) SDL_Surface_get_pixels(surface)) + clip.x * 4 + clip.y * sp;
+            unsigned char* n = ((unsigned char*) SDL_Surface_get_pixels(NoiseSurface[ns])) + clip.x * 4 + clip.y * np;
             for (int i = clip.h; i; --i, s += sp, n += np)
                 AnimationInfo::imageFilterSubFrom(s, n, length); // subtract noise
         }
         if (glow_level > 0) {
-            unsigned char* s = ((unsigned char*) surface->pixels) + clip.x * 4 + clip.y * sp;
+            unsigned char* s = ((unsigned char*) SDL_Surface_get_pixels(surface)) + clip.x * 4 + clip.y * sp;
             for (int i = clip.h; i; --i, s += sp)
                 AnimationInfo::imageFilterAddTo(s, g, length); // add glow
         }
@@ -600,7 +600,7 @@ static SDL_Surface *loadImage( char *file_name, bool *has_alpha, SDL_Surface *su
         SDL_RWclose(src);
     }
 #endif
-    if ( tmp && has_alpha ) *has_alpha = tmp->format->Amask;
+    if ( tmp && has_alpha ) *has_alpha = SDL_Surface_get_format(tmp)->Amask;
 
     delete[] buffer;
     if ( !tmp ){
@@ -608,7 +608,7 @@ static SDL_Surface *loadImage( char *file_name, bool *has_alpha, SDL_Surface *su
         return NULL;
     }
 
-    SDL_Surface *ret = SDL_ConvertSurface( tmp, surface->format, SDL_SWSURFACE );
+    SDL_Surface *ret = SDL_ConvertSurface( tmp, SDL_Surface_get_format(surface), SDL_SWSURFACE );
     SDL_FreeSurface( tmp );
     return ret;
 }
@@ -724,7 +724,7 @@ char *FuruLayer::message( const char *message, int &ret_int )
                     AnimationInfo *anim = new AnimationInfo();
                     anim->num_of_cells = 1;
                     SDL_LockSurface( img );
-                    firstpix = *((Uint32*) img->pixels) & ~AMASK;
+                    firstpix = *((Uint32*) SDL_Surface_get_pixels(img)) & ~AMASK;
                     if (firstpix > 0) {
                         anim->trans_mode = AnimationInfo::TRANS_TOPLEFT;
                     } else {
