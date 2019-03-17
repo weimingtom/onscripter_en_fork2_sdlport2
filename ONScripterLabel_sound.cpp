@@ -481,12 +481,9 @@ void ONScripterLabel::setupWaveHeader( unsigned char *buffer, int channels, int 
     memcpy( buffer, &header, sizeof(header) );
 }
 
-
-
 OVInfo *ONScripterLabel::openOggVorbis( unsigned char *buf, long len, int &channels, int &rate )
 {
     OVInfo *ovi = NULL;
-
     return ovi;
 }
 
@@ -495,12 +492,6 @@ int ONScripterLabel::closeOggVorbis(OVInfo *ovi)
     if (ovi->buf){
         ovi->buf = NULL;
     }
-    if (ovi->cvt.buf){
-        delete[] ovi->cvt.buf;
-        ovi->cvt.buf = NULL;
-        ovi->cvt_len = 0;
-    }
     delete ovi;
-
     return 0;
 }

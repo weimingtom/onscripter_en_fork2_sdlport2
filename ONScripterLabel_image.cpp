@@ -45,7 +45,7 @@
 #define snprintf _snprintf
 #endif
 
-SDL_Surface *ONScripterLabel::loadImage( char *filename, bool *has_alpha )
+SDL_Surface *ONScripterLabel::loadImage(char *filename, bool *has_alpha )
 {
     if ( !filename ) return NULL;
 
@@ -66,10 +66,12 @@ SDL_Surface *ONScripterLabel::loadImage( char *filename, bool *has_alpha )
         if (!(*has_alpha) && (tmp->flags & SDL_SRCCOLORKEY)){
             has_colorkey = true;
             colorkey = tmp->format->colorkey;
+#if 0
             if (tmp->format->palette){
                 //palette will be converted to RGBA, so don't do colorkey check
                 has_colorkey = false;
             }
+#endif
             *has_alpha = true;
         }
     }

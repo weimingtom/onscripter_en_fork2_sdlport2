@@ -1780,7 +1780,7 @@ int ONScripterLabel::movemousecursorCommand()
     int x = StretchPosX(script_h.readInt());
     int y = StretchPosY(script_h.readInt());
 
-    SDL_WarpMouse( x, y );
+    //SDL_WarpMouse( x, y );
 
     return RET_CONTINUE;
 }

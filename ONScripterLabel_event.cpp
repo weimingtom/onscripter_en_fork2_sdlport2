@@ -867,7 +867,7 @@ void ONScripterLabel::shiftCursorOnButton( int diff )
             x += clip.x;
             y += clip.y;
         }
-        SDL_WarpMouse(x, y);
+        //SDL_WarpMouse(x, y);
     }
 }
 

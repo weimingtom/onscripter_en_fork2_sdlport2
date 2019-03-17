@@ -33,7 +33,7 @@ static int __SDL_getEvent(SDL_Event *event, int isRemoved, int notRemovedIndex) 
 		while(PeekMessage(&msg, 0, 0, 0, PM_NOREMOVE)) {
 			if (!GetMessage(&msg, NULL, 0, 0)) {
 				SDL_Event quitevent;
-				ZeroMemory(&quitevent, sizeof(quitevent));
+				memset(&quitevent, 0, sizeof(quitevent));
 				quitevent.type = SDL_QUIT;
 				SDL_PushEvent(&quitevent);
 				__sdl_avail = FALSE;

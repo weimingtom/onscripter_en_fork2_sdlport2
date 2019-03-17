@@ -71,7 +71,7 @@
 typedef unsigned char uchar3[3];
 
 struct OVInfo{
-    SDL_AudioCVT cvt;
+    //SDL_AudioCVT cvt;
     int cvt_len;
     int mult1;
     int mult2;

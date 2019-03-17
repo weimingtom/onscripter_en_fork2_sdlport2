@@ -189,7 +189,9 @@ SDL_Surface *IMG_LoadBMP_RW(SDL_RWops *src)
 	Uint32 Gmask;
 	Uint32 Bmask;
 	Uint32 Amask;
+#if 0
 	SDL_Palette *palette;
+#endif
 	Uint8 *bits;
 	int ExpandBMP;
 
@@ -346,6 +348,7 @@ SDL_Surface *IMG_LoadBMP_RW(SDL_RWops *src)
 	}
 
 	/* Load the palette, if any */
+#if 0
 	palette = (surface->format)->palette;
 	if ( palette ) {
 		if ( SDL_RWseek(src, fp_offset+14+biSize, SEEK_SET) < 0 ) {
@@ -378,6 +381,7 @@ SDL_Surface *IMG_LoadBMP_RW(SDL_RWops *src)
 		}
 		palette->ncolors = biClrUsed;
 	}
+#endif
 
 	/* Read the surface pixels.  Note that the bmp image is upside down */
 	if ( SDL_RWseek(src, fp_offset+bfOffBits, SEEK_SET) < 0 ) {

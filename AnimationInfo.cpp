@@ -938,8 +938,7 @@ SDL_Surface *AnimationInfo::setupImageAlpha( SDL_Surface *surface,
         const int w3 = w22 * num_of_cells;
         orig_pos.w = w3;
         SDL_PixelFormat *fmt = surface->format;
-        SDL_Surface *surface2 = SDL_CreateRGBSurface( SDL_SWSURFACE, w3, h,
-                                                      fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask );
+        SDL_Surface *surface2 = SDL_CreateRGBSurface(SDL_SWSURFACE, w3, h, fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
         SDL_LockSurface( surface2 );
         Uint32 *buffer2 = (Uint32 *)surface2->pixels;
 

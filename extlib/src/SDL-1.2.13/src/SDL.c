@@ -60,13 +60,14 @@ void __sdl_seterror(const char *error) {
 static	const char	szClassName[] = "Windebug-SDL";
 static	const char	szCaptionName[] = "SDL-Window";
 
-		BOOL		__sdl_avail = FALSE;
-		HWND		__sdl_hWnd = NULL;
-		SDL_Surface	*__sdl_vsurf = NULL;
-		int			__sdl_eventw = 0;
-		int			__sdl_mousex = 0;
-		int			__sdl_mousey = 0;
-		BYTE		__sdl_mouseb = 0;
+BOOL		__sdl_avail = FALSE;
+HWND		__sdl_hWnd = NULL;
+SDL_Surface	*__sdl_vsurf = NULL;
+int			__sdl_eventw = 0;
+int			__sdl_mousex = 0;
+int			__sdl_mousey = 0;
+BYTE		__sdl_mouseb = 0;
+
 static	SINT16		winkeytbl[256];
 extern	void		__sdl_videoinit(void);
 extern	void		__sdl_videopaint(HWND hWnd, SDL_Surface *screen);
@@ -150,155 +151,150 @@ static const SDLKEYTBL sdlkeytbl[] = {
 
 
 static void makekeytbl(void) {
+	int	i;
+	const SDLKEYTBL	*key;
+	const SDLKEYTBL	*keyterm;
 
-	int			i;
-const SDLKEYTBL	*key;
-const SDLKEYTBL	*keyterm;
-
-	for (i=0; i<256; i++) {
+	for (i = 0; i < 256; i++) {
 		winkeytbl[i] = SDLK_UNKNOWN;
 	}
 	key = sdlkeytbl;
 	keyterm = key + (sizeof(sdlkeytbl)/sizeof(SDLKEYTBL));
-	while(key < keyterm) {
+	while (key < keyterm) {
 		winkeytbl[key->wincode & 0xff] = key->sdlcode;
 		key++;
 	}
 }
 
 static short cnvsdlkey(WPARAM wp, LPARAM lp) {
+	switch (wp) {
+	case VK_CONTROL:
+		return (lp & (1 << 24)) ? SDLK_RCTRL : SDLK_LCTRL;
 
-	switch(wp) {
-		case VK_CONTROL:
-			return((lp & (1 << 24))?SDLK_RCTRL:SDLK_LCTRL);
+	case VK_SHIFT:
+		return SDLK_LSHIFT;
 
-		case VK_SHIFT:
-			return(SDLK_LSHIFT);
-
-		case VK_MENU:
-			return((lp & (1 << 24))?SDLK_RALT:SDLK_LALT);
+	case VK_MENU:
+		return((lp & (1 << 24))?SDLK_RALT:SDLK_LALT);
 	}
-	return(winkeytbl[wp & 0xff]);
+	return winkeytbl[wp & 0xff];
 }
 
-static LRESULT CALLBACK SdlProc(HWND hWnd, UINT msg,
-											WPARAM wParam, LPARAM lParam) {
-
-	PAINTSTRUCT	ps;
-	HDC			hdc;
-	SDL_Event	event;
+static LRESULT CALLBACK SdlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	PAINTSTRUCT ps;
+	HDC	hdc;
+	SDL_Event event;
 
 	switch (msg) {
-		case WM_CREATE:
-			makekeytbl();
-			break;
+	case WM_CREATE:
+		makekeytbl();
+		break;
 
-		case WM_PAINT:
-			hdc = BeginPaint(hWnd, &ps);
-			__sdl_videopaint(hWnd, __sdl_vsurf);
-			EndPaint(hWnd, &ps);
-			break;
+	case WM_PAINT:
+		hdc = BeginPaint(hWnd, &ps);
+		__sdl_videopaint(hWnd, __sdl_vsurf);
+		EndPaint(hWnd, &ps);
+		break;
 
-		case WM_MOUSEMOVE:
-			__sdl_mousex = LOWORD(lParam);
-			__sdl_mousey = HIWORD(lParam);
-			ZeroMemory(&event, sizeof(event));
-			event.motion.type = SDL_MOUSEMOTION;
-			event.motion.state = __sdl_mouseb;
-			event.motion.x = LOWORD(lParam);
-			event.motion.y = HIWORD(lParam);
+	case WM_MOUSEMOVE:
+		__sdl_mousex = LOWORD(lParam);
+		__sdl_mousey = HIWORD(lParam);
+		memset(&event, 0, sizeof(event));
+		event.motion.type = SDL_MOUSEMOTION;
+		event.motion.state = __sdl_mouseb;
+		event.motion.x = LOWORD(lParam);
+		event.motion.y = HIWORD(lParam);
+		SDL_PushEvent(&event);
+		break;
+
+	case WM_LBUTTONDOWN:
+		__sdl_mousex = LOWORD(lParam);
+		__sdl_mousey = HIWORD(lParam);
+		__sdl_mouseb |= 1 << (SDL_BUTTON_LEFT - 1);
+		memset(&event, 0, sizeof(event));
+		event.button.type = SDL_MOUSEBUTTONDOWN;
+		event.button.button = SDL_BUTTON_LEFT;
+		event.button.state = SDL_PRESSED;
+		event.button.x = LOWORD(lParam);
+		event.button.y = HIWORD(lParam);
+		SDL_PushEvent(&event);
+		break;
+
+	case WM_LBUTTONUP:
+		__sdl_mousex = LOWORD(lParam);
+		__sdl_mousey = HIWORD(lParam);
+		__sdl_mouseb &= ~(1 << (SDL_BUTTON_LEFT - 1));
+		memset(&event, 0, sizeof(event));
+		event.button.type = SDL_MOUSEBUTTONUP;
+		event.button.button = SDL_BUTTON_LEFT;
+		event.button.state = SDL_RELEASED;
+		event.button.x = LOWORD(lParam);
+		event.button.y = HIWORD(lParam);
+		SDL_PushEvent(&event);
+		break;
+
+	case WM_RBUTTONDOWN:
+		__sdl_mousex = LOWORD(lParam);
+		__sdl_mousey = HIWORD(lParam);
+		__sdl_mouseb |= 1 << (SDL_BUTTON_RIGHT - 1);
+		memset(&event, 0, sizeof(event));
+		event.button.type = SDL_MOUSEBUTTONDOWN;
+		event.button.button = SDL_BUTTON_RIGHT;
+		event.button.state = SDL_PRESSED;
+		event.button.x = LOWORD(lParam);
+		event.button.y = HIWORD(lParam);
+		SDL_PushEvent(&event);
+		break;
+
+	case WM_RBUTTONUP:
+		__sdl_mousex = LOWORD(lParam);
+		__sdl_mousey = HIWORD(lParam);
+		__sdl_mouseb &= ~(1 << (SDL_BUTTON_RIGHT - 1));
+		memset(&event, 0, sizeof(event));
+		event.button.type = SDL_MOUSEBUTTONUP;
+		event.button.button = SDL_BUTTON_RIGHT;
+		event.button.state = SDL_RELEASED;
+		event.button.x = LOWORD(lParam);
+		event.button.y = HIWORD(lParam);
+		SDL_PushEvent(&event);
+		break;
+
+	case WM_KEYDOWN:
+		memset(&event, 0, sizeof(event));
+		event.key.type = SDL_KEYDOWN;
+		event.key.keysym.sym = cnvsdlkey(wParam, lParam);
+		if (event.key.keysym.sym != SDLK_UNKNOWN) {
 			SDL_PushEvent(&event);
-			break;
+		}
+		break;
 
-		case WM_LBUTTONDOWN:
-			__sdl_mousex = LOWORD(lParam);
-			__sdl_mousey = HIWORD(lParam);
-			__sdl_mouseb |= 1 << (SDL_BUTTON_LEFT - 1);
-			ZeroMemory(&event, sizeof(event));
-			event.button.type = SDL_MOUSEBUTTONDOWN;
-			event.button.button = SDL_BUTTON_LEFT;
-			event.button.state = SDL_PRESSED;
-			event.button.x = LOWORD(lParam);
-			event.button.y = HIWORD(lParam);
+	case WM_KEYUP:
+		memset(&event, 0, sizeof(event));
+		event.key.type = SDL_KEYUP;
+		event.key.keysym.sym = cnvsdlkey(wParam, lParam);
+		if (event.key.keysym.sym != SDLK_UNKNOWN) {
 			SDL_PushEvent(&event);
-			break;
+		}
+		break;
 
-		case WM_LBUTTONUP:
-			__sdl_mousex = LOWORD(lParam);
-			__sdl_mousey = HIWORD(lParam);
-			__sdl_mouseb &= ~(1 << (SDL_BUTTON_LEFT - 1));
-			ZeroMemory(&event, sizeof(event));
-			event.button.type = SDL_MOUSEBUTTONUP;
-			event.button.button = SDL_BUTTON_LEFT;
-			event.button.state = SDL_RELEASED;
-			event.button.x = LOWORD(lParam);
-			event.button.y = HIWORD(lParam);
-			SDL_PushEvent(&event);
-			break;
+	case WM_CLOSE:
+		memset(&event, 0, sizeof(event));
+		event.type = SDL_QUIT;
+		SDL_PushEvent(&event);
+		__sdl_avail = FALSE;
+		break;
 
-		case WM_RBUTTONDOWN:
-			__sdl_mousex = LOWORD(lParam);
-			__sdl_mousey = HIWORD(lParam);
-			__sdl_mouseb |= 1 << (SDL_BUTTON_RIGHT - 1);
-			ZeroMemory(&event, sizeof(event));
-			event.button.type = SDL_MOUSEBUTTONDOWN;
-			event.button.button = SDL_BUTTON_RIGHT;
-			event.button.state = SDL_PRESSED;
-			event.button.x = LOWORD(lParam);
-			event.button.y = HIWORD(lParam);
-			SDL_PushEvent(&event);
-			break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
 
-		case WM_RBUTTONUP:
-			__sdl_mousex = LOWORD(lParam);
-			__sdl_mousey = HIWORD(lParam);
-			__sdl_mouseb &= ~(1 << (SDL_BUTTON_RIGHT - 1));
-			ZeroMemory(&event, sizeof(event));
-			event.button.type = SDL_MOUSEBUTTONUP;
-			event.button.button = SDL_BUTTON_RIGHT;
-			event.button.state = SDL_RELEASED;
-			event.button.x = LOWORD(lParam);
-			event.button.y = HIWORD(lParam);
-			SDL_PushEvent(&event);
-			break;
-
-		case WM_KEYDOWN:
-			ZeroMemory(&event, sizeof(event));
-			event.key.type = SDL_KEYDOWN;
-			event.key.keysym.sym = cnvsdlkey(wParam, lParam);
-			if (event.key.keysym.sym != SDLK_UNKNOWN) {
-				SDL_PushEvent(&event);
-			}
-			break;
-
-		case WM_KEYUP:
-			ZeroMemory(&event, sizeof(event));
-			event.key.type = SDL_KEYUP;
-			event.key.keysym.sym = cnvsdlkey(wParam, lParam);
-			if (event.key.keysym.sym != SDLK_UNKNOWN) {
-				SDL_PushEvent(&event);
-			}
-			break;
-
-		case WM_CLOSE:
-			ZeroMemory(&event, sizeof(event));
-			event.type = SDL_QUIT;
-			SDL_PushEvent(&event);
-			__sdl_avail = FALSE;
-			break;
-
-		case WM_DESTROY:
-			PostQuitMessage(0);
-			break;
-
-		default:
-			return(DefWindowProc(hWnd, msg, wParam, lParam));
+	default:
+		return DefWindowProc(hWnd, msg, wParam, lParam);
 	}
-	return(0L);
+	return 0L;
 }
 
 static BOOL sdlinit(void) {
-
 	HINSTANCE	hInstance;
 	WNDCLASS	sdlcls;
 
@@ -333,14 +329,14 @@ static BOOL sdlinit(void) {
 }
 
 static void sdlterm(void) {
+
 }
 
 
 #if !IS_LIB
 
 int main(int argc, char **argv) {
-
-	int		r;
+	int	r;
 
 	__sdl_videoinit();
 	if (sdlinit() != SUCCESS) {
@@ -352,7 +348,7 @@ int main(int argc, char **argv) {
 }
 
 int SDL_main(int argc, char **argv) {
-	SDL_Event	e;
+	SDL_Event e;
 	int task_avail = 1;
 
 	while (task_avail) {
@@ -383,21 +379,15 @@ int SDL_main(int argc, char **argv) {
 	return 0;
 }
 
-
-int APIENTRY WinMain(HINSTANCE hInstance,
-	HINSTANCE hPrevInstance, 
-        LPSTR lpCmdLine,
-	int nCmdShow)
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	main(__argc, __argv); 
 }
 
 #endif
 
-
 int SDL_Init(Uint32 flags)
 {
-	//assert(0);
 	sdlinit();
 	return 0;
 }

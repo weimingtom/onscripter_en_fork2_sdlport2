@@ -46,11 +46,11 @@ TTF_Font *TTF_OpenFont(const char *file, int ptsize)
 	if (ret == NULL) {
 		return(NULL);
 	}
-	ZeroMemory(ret, sizeof(_TTFFNT));
+	memset(ret, 0, sizeof(_TTFFNT));
 	ret->ptsize = ptsize;
 	ret->bmpalign = ((ptsize + 31) / 8) & (~3);
 
-	ZeroMemory(&bi, sizeof(bi));
+	memset(&bi, 0, sizeof(bi));
 	bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	bi.bmiHeader.biWidth = ptsize;
 	bi.bmiHeader.biHeight = 0 - ptsize;
@@ -93,8 +93,10 @@ SDL_Surface *TTF_RenderGlyph_Shaded(TTF_Font *font, Uint16 ch, SDL_Color fg, SDL
 	int			leng;
 	TTFFNT		fhdl;
 	SIZE		fntsize;
+#if 0
 	SDL_Palette	*palette;
-const BYTE		*src;
+#endif
+	const BYTE		*src;
 	BYTE		*dst;
 	int			x;
 	WCHAR  ch2[] = {ch, 0};
@@ -119,6 +121,8 @@ const BYTE		*src;
 	if (ret == NULL) {
 		goto trus_exit;
 	}
+
+#if 0
 	palette = ret->format->palette;
 	palette->colors[0].r = bg.r; //bg
 	palette->colors[0].g = bg.g;
@@ -126,6 +130,7 @@ const BYTE		*src;
 	palette->colors[1].r = fg.r;
 	palette->colors[1].g = fg.g;
 	palette->colors[1].b = fg.b;
+#endif
 
 	src = (BYTE *)fhdl->image;
 	dst = (BYTE *)ret->pixels;

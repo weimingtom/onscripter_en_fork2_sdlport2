@@ -1,15 +1,12 @@
-//#include	"compiler.h"
-#include	<windows.h>
-#include	<stdio.h>
-#include	<stddef.h>
-#include	<SDL.h>
+#include <windows.h>
+#include <stdio.h>
+#include <stddef.h>
+#include <SDL.h>
 
-static	SDL_VideoInfo	vinfo;
-static	SDL_PixelFormat	vinfofmt;
-static	const char		vinfostr[] = "SDL simulate";
+static SDL_VideoInfo vinfo;
 
-extern	SDL_Surface		*__sdl_vsurf;
-extern	HWND			__sdl_hWnd;
+extern SDL_Surface *__sdl_vsurf;
+extern HWND __sdl_hWnd;
 
 enum {
 	SURFTYPE_MEMORY	= 0,
@@ -23,15 +20,13 @@ typedef struct {
 
 #pragma pack(push, 1)
 typedef struct {
-	BITMAPINFOHEADER	bmiHeader;
-	RGBQUAD				bmiColors[256];
+	BITMAPINFOHEADER bmiHeader;
+	RGBQUAD	bmiColors[256];
 } BMPINFO;
 #pragma pack(pop)
 
-
 static BYTE mask2sft(DWORD mask) {
-
-	BYTE	ret;
+	BYTE ret;
 
 	ret = 0;
 	if (mask) {
@@ -42,16 +37,16 @@ static BYTE mask2sft(DWORD mask) {
 	return(ret);
 }
 
-static SDL_Surface *cresurf_sw(DWORD flags, int width, int height,
-			int depth, DWORD Rmask, DWORD Gmask, DWORD Bmask, DWORD Amask) {
-
-	int				size;
-	int				xalign;
-	SDL_Surface		*ret;
-	SURFINF			inf;
+static SDL_Surface *cresurf_sw(DWORD flags, int width, int height, int depth, DWORD Rmask, DWORD Gmask, DWORD Bmask, DWORD Amask) {
+	int	size;
+	int	xalign;
+	SDL_Surface	*ret;
+	SURFINF inf;
 	SDL_PixelFormat	*fmt;
-	SDL_Palette		*pal;
-	SDL_Color		*col;
+#if 0
+	SDL_Palette *pal;
+#endif
+	SDL_Color *col;
 
 	if ((depth != 8) && (depth != 16) && (depth != 24) && (depth != 32)) {
 		return(NULL);
@@ -59,18 +54,21 @@ static SDL_Surface *cresurf_sw(DWORD flags, int width, int height,
 	xalign = depth / 8;
 	size = width * height * xalign;
 	size += sizeof(SDL_Surface) + sizeof(_SURFINF) + sizeof(SDL_PixelFormat);
+#if 0
 	if (depth == 8) {
 		size += sizeof(SDL_Palette) + (sizeof(SDL_Color) << depth);
 	}
+#endif
 	ret = (SDL_Surface *)malloc(size);
 	if (ret != NULL) {
-		ZeroMemory(ret, size);
+		memset(ret, 0, size);
 		inf = (SURFINF)(ret + 1);
 		fmt = (SDL_PixelFormat *)(inf + 1);
 		ret->format = fmt;
 		ret->w = width;
 		ret->h = height;
 		ret->pitch = (WORD)(width * xalign);
+#if 0
 		if (depth == 8) {
 			pal = (SDL_Palette *)(fmt + 1);
 			col = (SDL_Color *)(pal + 1);
@@ -79,7 +77,9 @@ static SDL_Surface *cresurf_sw(DWORD flags, int width, int height,
 			pal->colors = col;
 			ret->pixels = (void *)(col + (1 << depth));
 		}
-		else {
+		else 
+#endif
+		{
 			ret->pixels = (void *)(fmt + 1);
 			fmt->Rmask = Rmask;
 			fmt->Gmask = Gmask;
@@ -92,22 +92,21 @@ static SDL_Surface *cresurf_sw(DWORD flags, int width, int height,
 		}
 		inf->type = SURFTYPE_MEMORY;
 		fmt->BitsPerPixel = depth;
-		fmt->BytesPerPixel = xalign;
 	}
-	return(ret);
+	return ret;
 }
 
 static SDL_Surface *cresurf_hw(DWORD flags, int width, int height, int depth, DWORD Rmask, DWORD Gmask, DWORD Bmask, DWORD Amask) {
-	BMPINFO			bi;
-	HDC				hdc;
-	HBITMAP			hbmp;
-	void			*image;
-	SDL_Surface		*ret;
-	int				size;
-	SURFINF			inf;
+	BMPINFO	bi;
+	HDC	hdc;
+	HBITMAP	hbmp;
+	void *image;
+	SDL_Surface	*ret;
+	int	size;
+	SURFINF inf;
 	SDL_PixelFormat	*fmt;
 
-	ZeroMemory(&bi, sizeof(bi));
+	memset(&bi, 0, sizeof(bi));
 	bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	bi.bmiHeader.biWidth = width;
 	bi.bmiHeader.biHeight = 0 - height;
@@ -137,7 +136,7 @@ static SDL_Surface *cresurf_hw(DWORD flags, int width, int height, int depth, DW
 	if (ret == NULL) {
 		goto ssc_err2;
 	}
-	ZeroMemory(ret, size);
+	memset(ret, 0, size);
 	inf = (SURFINF)(ret + 1);
 	fmt = (SDL_PixelFormat *)(inf + 1);
 	ret->format = fmt;
@@ -148,7 +147,6 @@ static SDL_Surface *cresurf_hw(DWORD flags, int width, int height, int depth, DW
 	inf->type = SURFTYPE_BITMAP;
 	inf->hbmp = hbmp;
 	fmt->BitsPerPixel = depth;
-	fmt->BytesPerPixel = depth / 8;
 	if (depth == 16) {
 		fmt->Rshift = 11;
 		fmt->Gshift = 5;
@@ -174,9 +172,7 @@ ssc_err1:
 	return(NULL);
 }
 
-SDL_Surface *SDL_CreateRGBSurface(DWORD flags, int width, int height,
-			int depth, DWORD Rmask, DWORD Gmask, DWORD Bmask, DWORD Amask) {
-
+SDL_Surface *SDL_CreateRGBSurface(DWORD flags, int width, int height, int depth, DWORD Rmask, DWORD Gmask, DWORD Bmask, DWORD Amask) {
 	if ((width <= 0) || (height <= 0)) {
 		return(NULL);
 	}
@@ -188,7 +184,6 @@ SDL_Surface *SDL_CreateRGBSurface(DWORD flags, int width, int height,
 }
 
 void SDL_FreeSurface(SDL_Surface *surface) {
-
 	SURFINF	inf;
 
 	if (surface) {
@@ -200,26 +195,15 @@ void SDL_FreeSurface(SDL_Surface *surface) {
 	}
 }
 
-
 // ---- video
 
 void __sdl_videoinit(void) {
-
-	ZeroMemory(&vinfofmt, sizeof(vinfofmt));
-	vinfofmt.BitsPerPixel = 16;
-	vinfofmt.BytesPerPixel = 2;
-	vinfofmt.Rshift = 11;
-	vinfofmt.Gshift = 5;
-	vinfofmt.Bshift = 0;
-	vinfofmt.Rmask = 0xf800;
-	vinfofmt.Gmask = 0x07e0;
-	vinfofmt.Bmask = 0x001f;
-	ZeroMemory(&vinfo, sizeof(vinfo));
-	vinfo.vfmt = &vinfofmt;
+	memset(&vinfo, 0, sizeof(vinfo));
+	vinfo.current_w = 640;
+	vinfo.current_w = 480;
 }
 
 void __sdl_videopaint(HWND hWnd, SDL_Surface *screen) {
-
 	SURFINF	inf;
 	HDC		hdc;
 	HDC		hmemdc;
@@ -240,7 +224,6 @@ void __sdl_videopaint(HWND hWnd, SDL_Surface *screen) {
 }
 
 static void setclientsize(HWND hwnd, LONG width, LONG height) {
-
 	int		scx, scy;
 	int		x, y, w, h;
 	RECT	rectWindow, rectClient, rectDisktop;
@@ -282,14 +265,15 @@ static void setclientsize(HWND hwnd, LONG width, LONG height) {
 		}
 	}
 	MoveWindow(hwnd, x, y, w, h, TRUE);
+	vinfo.current_w = width;
+	vinfo.current_w = height;
 }
 
 
 // ----
 
 void SDL_WM_SetCaption(const char *title, const char *icon) {
-
-	char	caption[256];
+	char caption[256];
 
 	strncpy(caption, "SDL", sizeof(caption));
 	if (title) {
@@ -300,17 +284,10 @@ void SDL_WM_SetCaption(const char *title, const char *icon) {
 }
 
 const SDL_VideoInfo *SDL_GetVideoInfo(void) {
-
-	return(&vinfo);
+	return &vinfo;
 }
 
-char *SDL_VideoDriverName(char *namebuf, int maxlen) {
-	if ((namebuf) && (maxlen)) {
-		strncpy(namebuf, vinfostr, maxlen);
-	}
-	return((char *)vinfostr);
-}
-
+//paint method: __sdl_videopaint(__sdl_hWnd, screen);
 SDL_Surface *SDL_SetVideoMode(int width, int height, int bpp, DWORD flags) {
 	SDL_FreeSurface(__sdl_vsurf);
 	__sdl_vsurf = SDL_CreateRGBSurface(SDL_HWSURFACE, width, height, bpp, 0, 0, 0, 0);
@@ -318,25 +295,12 @@ SDL_Surface *SDL_SetVideoMode(int width, int height, int bpp, DWORD flags) {
 	return(__sdl_vsurf);
 }
 
-SDL_Surface *SDL_GetVideoSurface(void) {
-
-	return(__sdl_vsurf);
-}
-
 int SDL_LockSurface(SDL_Surface *surface) {
-
-	return(0);
+	return 0;
 }
 
 void SDL_UnlockSurface(SDL_Surface *surface) {
 }
-
-int SDL_Flip(SDL_Surface *screen) {
-
-	__sdl_videopaint(__sdl_hWnd, screen);
-	return(0);
-}
-
 
 int SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color)
 {
@@ -369,11 +333,6 @@ SDL_Surface * SDL_ConvertSurface(SDL_Surface *src, SDL_PixelFormat *fmt, Uint32 
 {
 	assert(0);
 	return NULL;
-}
-
-void SDL_WarpMouse(Uint16 x, Uint16 y)
-{
-	assert(0);
 }
 
 Uint32 SDL_MapRGBA(const SDL_PixelFormat * const format, const Uint8 r, const Uint8 g, const Uint8 b, const Uint8 a)
