@@ -9,6 +9,9 @@
 static const char *s_error;
 void IMG_SetError(const char *str)
 {
+	OutputDebugString("IMG_SetError: ");
+	OutputDebugString(str);
+	OutputDebugString("\n");
 	s_error = str;
 }
 

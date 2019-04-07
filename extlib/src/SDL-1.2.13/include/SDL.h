@@ -39,6 +39,8 @@ const char *SDL_GetError(void);
 
 extern int SDL_Init(Uint32 flags);
 
+extern void SDL_DrawMemoryBitmap(HWND m_hWnd, int w, int h, BYTE *buffer);
+
 #ifdef __cplusplus
 }
 #endif

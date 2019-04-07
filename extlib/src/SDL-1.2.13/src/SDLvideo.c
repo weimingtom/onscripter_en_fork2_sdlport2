@@ -171,6 +171,8 @@ ssc_err1:
 	return(NULL);
 }
 
+#define TEST_DRAW_DIR 0
+
 SDL_Surface *SDL_CreateRGBSurface(DWORD flags, int width, int height, int depth, DWORD Rmask, DWORD Gmask, DWORD Bmask, DWORD Amask) {
 	/*
 	if ((width <= 0) || (height <= 0)) {
@@ -188,10 +190,25 @@ SDL_Surface *SDL_CreateRGBSurface(DWORD flags, int width, int height, int depth,
 	if ((width <= 0) || (height <= 0)) {
 		return(NULL);
 	}
+	if (flags & SDL_HWSURFACE) {
+		//because on windows, SDL_DrawMemoryBitmap only support 24 bit color
+		depth = 24; 
+	}
 	msd_surf = MSD_CreateRGBSurface(flags, width, height, depth, Rmask, Gmask, Bmask, Amask);
 	ret = (SDL_Surface *)malloc(sizeof(SDL_Surface));
 	ret->_surf = msd_surf;
+	
 	if (flags & SDL_HWSURFACE) {
+#if TEST_DRAW_DIR		
+		MSD_Surface *surf_test;
+		MSD_Rect rect = {0, 0, 640, 480};
+
+		surf_test = MSD_LoadBMP("bs.bmp"); 
+		MSD_FillRect(msd_surf, NULL, 0xFFFF0000);
+		MSD_SetAlpha(msd_surf, 0, 0xFF);
+		MSD_BlitSurface(surf_test, &rect, msd_surf, NULL);
+#endif
+
 		return ret;
 	} else {
 		return ret;
@@ -199,12 +216,19 @@ SDL_Surface *SDL_CreateRGBSurface(DWORD flags, int width, int height, int depth,
 }
 
 void SDL_FreeSurface(SDL_Surface *surface) {
+#if 0
 	SURFINF	inf;
+#endif
 
 	if (surface) {
+#if 0
 		inf = (SURFINF)(surface + 1);
 		if (inf->type == SURFTYPE_BITMAP) {
 			DeleteObject(inf->hbmp);
+		}
+#endif
+		if (surface->_surf) {
+			MSD_FreeSurface(surface->_surf);
 		}
 		free(surface);
 	}
@@ -219,6 +243,7 @@ void __sdl_videoinit(void) {
 }
 
 void __sdl_videopaint(HWND hWnd, SDL_Surface *screen) {
+	/*
 	SURFINF	inf;
 	HDC		hdc;
 	HDC		hmemdc;
@@ -234,6 +259,13 @@ void __sdl_videopaint(HWND hWnd, SDL_Surface *screen) {
 			SelectObject(hmemdc, hbitmap);
 			DeleteDC(hmemdc);
 			ReleaseDC(hWnd, hdc);
+		}
+	}*/
+
+	if (screen != NULL) {
+		MSD_Surface *surf = screen->_surf;
+		if (surf != NULL) {
+			SDL_DrawMemoryBitmap(hWnd, surf->w, surf->h, surf->pixels);
 		}
 	}
 }
@@ -333,6 +365,28 @@ int SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_R
 {
 	//TODO:
 	//assert(0);
+	MSD_Surface *src_surf = NULL;
+	MSD_Surface *dst_surf = NULL;
+	MSD_Rect *p_srcrect = NULL, *p_dstrect = NULL, _srcrect, _dstrect;
+	if (src && dst) {
+		src_surf = src->_surf;
+		dst_surf = dst->_surf;
+	}
+	if (srcrect) {
+		p_srcrect = &_srcrect;
+		p_srcrect->x = srcrect->x;
+		p_srcrect->y = srcrect->y;
+		p_srcrect->w = srcrect->w;
+		p_srcrect->h = srcrect->h;
+	}
+	if (dstrect) {
+		p_dstrect = &_dstrect;
+		p_dstrect->x = dstrect->x;
+		p_dstrect->y = dstrect->y;
+		p_dstrect->w = dstrect->w;
+		p_dstrect->h = dstrect->h;
+	}
+	MSD_BlitSurface(src_surf, p_srcrect, dst_surf, p_dstrect);
 	return 0;
 }
 

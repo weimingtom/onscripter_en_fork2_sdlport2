@@ -180,6 +180,9 @@ static short cnvsdlkey(WPARAM wp, LPARAM lp) {
 	return winkeytbl[wp & 0xff];
 }
 
+#define TEST_SHOWMEMBMP 0 /*test SDL_DrawMemoryBitmap*/
+void test_init();
+void test_load();
 static LRESULT CALLBACK SdlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	PAINTSTRUCT ps;
 	HDC	hdc;
@@ -187,12 +190,19 @@ static LRESULT CALLBACK SdlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 	switch (msg) {
 	case WM_CREATE:
+		__sdl_hWnd = hWnd;
 		makekeytbl();
+#if TEST_SHOWMEMBMP
+		test_init();
+#endif
 		break;
 
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 		__sdl_videopaint(hWnd, __sdl_vsurf);
+#if TEST_SHOWMEMBMP		
+		test_load();
+#endif
 		EndPaint(hWnd, &ps);
 		break;
 
@@ -390,4 +400,66 @@ int SDL_Init(Uint32 flags)
 {
 	sdlinit();
 	return 0;
+}
+
+//https://blog.csdn.net/blognkliming/article/details/8331948 
+//void SaveToBmpAndBlend(HWND m_hWnd, BYTE *buffer)
+void SDL_DrawMemoryBitmap(HWND m_hWnd, int w, int h, BYTE *buffer)
+{
+	const int bytesPerPixel = 3;
+	HDC hdc;
+	HDC hdcMem;
+	HBITMAP hBmp;
+	BITMAPINFO bmpinfo;
+	BYTE* pDibs = NULL;
+    HGDIOBJ hOldSel;
+	//int i;
+
+	if (__sdl_hWnd == NULL) {
+		return;
+	}
+
+	hdc = GetDC(m_hWnd);
+	hdcMem = CreateCompatibleDC(hdc);
+	
+	bmpinfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bmpinfo.bmiHeader.biWidth = w;
+	bmpinfo.bmiHeader.biHeight = h;
+	bmpinfo.bmiHeader.biPlanes = 1;
+	bmpinfo.bmiHeader.biBitCount = 8 * bytesPerPixel;
+	bmpinfo.bmiHeader.biCompression = BI_RGB;
+	bmpinfo.bmiHeader.biSizeImage = w * h * bytesPerPixel;
+	bmpinfo.bmiHeader.biXPelsPerMeter = 0;
+	bmpinfo.bmiHeader.biClrImportant = 0;
+	bmpinfo.bmiHeader.biClrUsed = 0;
+	
+	hBmp = CreateDIBSection(hdcMem, &bmpinfo, DIB_RGB_COLORS, (void**)&pDibs, NULL, 0);
+	//for (i = 0; i < w * h * bytesPerPixel; i++) {
+	//	pDibs[i] = buffer[i];
+	//}
+	memcpy(pDibs, buffer, w * h * bytesPerPixel);
+	hOldSel = SelectObject(hdcMem,hBmp);
+
+	//see TEST_DRAW_DIR
+	//BitBlt(hdc, 0, 0, w, h, hdcMem, 0, 0, SRCCOPY);
+	StretchBlt(hdc, 0, 0, w, h, hdcMem, 0, h, w, -h, SRCCOPY); //up side down
+	
+	SelectObject(hdcMem, hOldSel);    
+	DeleteDC(hdcMem); 
+	ReleaseDC(m_hWnd, hdc);
+}
+
+MSD_Surface *surf_test = NULL;
+void test_init()
+{
+	surf_test = MSD_LoadBMP("bs.bmp");
+	//MSD_SaveBMP(surf, "tmp.bmp");
+	//MSD_FreeSurface(surf);
+}
+
+void test_load()
+{
+	if (surf_test != NULL) {
+		SDL_DrawMemoryBitmap(__sdl_hWnd, surf_test->w, surf_test->h, surf_test->pixels);
+	}
 }
