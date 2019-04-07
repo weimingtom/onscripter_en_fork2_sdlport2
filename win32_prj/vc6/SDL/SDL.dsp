@@ -85,6 +85,10 @@ LIB32=link.exe -lib
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\include\MSD_video.h"
+# End Source File
+# Begin Source File
+
 SOURCE="..\..\..\extlib\src\SDL-1.2.13\include\SDL.h"
 # End Source File
 # Begin Source File
@@ -119,6 +123,46 @@ SOURCE="..\..\..\extlib\src\SDL-1.2.13\include\SDLvideo.h"
 # Begin Group "src"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\src\MSD_blit.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\src\MSD_blit_0.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\src\MSD_blit_1.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\src\MSD_blit_A.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\src\MSD_blit_N.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\src\MSD_bmp.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\src\MSD_pixels.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\src\MSD_rwops.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\src\MSD_stretch.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\..\extlib\src\SDL-1.2.13\src\MSD_surface.c"
+# End Source File
 # Begin Source File
 
 SOURCE="..\..\..\extlib\src\SDL-1.2.13\src\SDL.c"
