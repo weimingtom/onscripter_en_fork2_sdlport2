@@ -44,7 +44,7 @@ int SDL_InitSubSystem(DWORD flags) {
 void SDL_Quit(void) {
 }
 
-char *SDL_GetError(void) {
+const char *SDL_GetError(void) {
 
 	return(__sdl_error);
 }

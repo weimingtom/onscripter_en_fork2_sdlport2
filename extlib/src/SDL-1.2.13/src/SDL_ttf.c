@@ -22,7 +22,7 @@ typedef struct {
 int TTF_Init(void)
 {
 	//assert(0);
-	return NULL;
+	return 0;
 }
 
 static const TCHAR deffontface[] = "SimSun";//"MS Gothic"; //FIXME: for TextOutA gb2312 
@@ -83,7 +83,7 @@ TTF_Font *TTF_OpenFont(const char *file, int ptsize)
 	SetTextColor(ret->hdcimage, RGB(255, 255, 255));
 	SetBkColor(ret->hdcimage, RGB(0, 0, 0));
 	SetRect(&ret->rect, 0, 0, ptsize, ptsize);
-	return(ret);
+	return (TTF_Font *)ret;
 }
 
 SDL_Surface *TTF_RenderGlyph_Shaded(TTF_Font *font, Uint16 ch, SDL_Color fg, SDL_Color bg)

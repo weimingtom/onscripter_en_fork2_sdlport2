@@ -17,7 +17,7 @@ extern SDL_RWops * SDL_RWFromMem(void *mem, int size);
 extern SDL_RWops *SDL_RWFromFile(const char *file, const char *mode);
 extern int SDL_RWseek(SDL_RWops *stream, long offset, int origin);
 extern long SDL_RWtell(SDL_RWops *stream);
-extern size_t SDL_RWread(void *buffer, size_t size, size_t count, SDL_RWops *stream);
+extern size_t SDL_RWread(SDL_RWops *stream, void *buffer, size_t size, size_t count);
 extern Uint32 SDL_Swap32(Uint32 x);
 extern Uint16 SDL_Swap16(Uint16 x);
 extern Uint16 SDL_ReadLE16(SDL_RWops *src);
@@ -66,11 +66,14 @@ typedef struct {
 } SDL_VideoInfo;
 
 typedef struct SDL_Surface {
-	SDL_PixelFormat *_format;
-	int	_w;
-	int	_h;
-	WORD _pitch;
-	void *_pixels;
+	//SDL_PixelFormat *_format;
+	//int	_w;
+	//int	_h;
+	//WORD _pitch;
+	//void *_pixels;
+
+	SDL_PixelFormat temp_format;
+	MSD_Surface *_surf;
 } SDL_Surface;
 
 extern SDL_PixelFormat *SDL_Surface_get_format(SDL_Surface *surface);

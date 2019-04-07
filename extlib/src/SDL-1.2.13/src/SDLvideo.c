@@ -37,7 +37,7 @@ static BYTE mask2sft(DWORD mask) {
 	return(ret);
 }
 
-static SDL_Surface *cresurf_sw(DWORD flags, int width, int height, int depth, DWORD Rmask, DWORD Gmask, DWORD Bmask, DWORD Amask) {
+static SDL_Surface *__cresurf_sw(DWORD flags, int width, int height, int depth, DWORD Rmask, DWORD Gmask, DWORD Bmask, DWORD Amask) {
 	int	size;
 	int	xalign;
 	SDL_Surface	*ret;
@@ -46,10 +46,9 @@ static SDL_Surface *cresurf_sw(DWORD flags, int width, int height, int depth, DW
 #if 0
 	SDL_Palette *pal;
 #endif
-	SDL_Color *col;
-
+	
 	if ((depth != 8) && (depth != 16) && (depth != 24) && (depth != 32)) {
-		return(NULL);
+		return NULL;
 	}
 	xalign = depth / 8;
 	size = width * height * xalign;
@@ -96,7 +95,7 @@ static SDL_Surface *cresurf_sw(DWORD flags, int width, int height, int depth, DW
 	return ret;
 }
 
-static SDL_Surface *cresurf_hw(DWORD flags, int width, int height, int depth, DWORD Rmask, DWORD Gmask, DWORD Bmask, DWORD Amask) {
+static SDL_Surface *__cresurf_hw(DWORD flags, int width, int height, int depth, DWORD Rmask, DWORD Gmask, DWORD Bmask, DWORD Amask) {
 	BMPINFO	bi;
 	HDC	hdc;
 	HBITMAP	hbmp;
@@ -173,6 +172,7 @@ ssc_err1:
 }
 
 SDL_Surface *SDL_CreateRGBSurface(DWORD flags, int width, int height, int depth, DWORD Rmask, DWORD Gmask, DWORD Bmask, DWORD Amask) {
+	/*
 	if ((width <= 0) || (height <= 0)) {
 		return(NULL);
 	}
@@ -180,6 +180,21 @@ SDL_Surface *SDL_CreateRGBSurface(DWORD flags, int width, int height, int depth,
 		return cresurf_hw(flags, width, height, depth, Rmask, Gmask, Bmask, Amask);
 	} else {
 		return cresurf_sw(flags, width, height, depth, Rmask, Gmask, Bmask, Amask);
+	}*/
+	
+	MSD_Surface *msd_surf;
+	SDL_Surface *ret;
+
+	if ((width <= 0) || (height <= 0)) {
+		return(NULL);
+	}
+	msd_surf = MSD_CreateRGBSurface(flags, width, height, depth, Rmask, Gmask, Bmask, Amask);
+	ret = (SDL_Surface *)malloc(sizeof(SDL_Surface));
+	ret->_surf = msd_surf;
+	if (flags & SDL_HWSURFACE) {
+		return ret;
+	} else {
+		return ret;
 	}
 }
 
@@ -440,10 +455,10 @@ long SDL_RWtell(SDL_RWops *stream)
 	return stream->pos;
 }
 
-size_t SDL_RWread(void *buffer, size_t size, size_t count, SDL_RWops *stream)
+size_t SDL_RWread(SDL_RWops *stream, void *buffer, size_t size, size_t count)
 {
 	size_t len = size * count;
-	if (len + stream->pos > stream->size)
+	if ((int)len + stream->pos > stream->size)
 	{
 		len = stream->size - stream->pos;
 	}
@@ -471,7 +486,7 @@ static int is_little_endian(void)
     return 0;
 }
 
-Uint16 SDL_ReadLE16 (SDL_RWops *src)
+Uint16 SDL_ReadLE16(SDL_RWops *src)
 {
 	Uint16 value;
 
@@ -480,7 +495,7 @@ Uint16 SDL_ReadLE16 (SDL_RWops *src)
 	return is_little_endian() ? value : SDL_Swap16(value);
 }
 
-Uint32 SDL_ReadLE32 (SDL_RWops *src)
+Uint32 SDL_ReadLE32(SDL_RWops *src)
 {
 	Uint32 value;
 
@@ -492,52 +507,87 @@ Uint32 SDL_ReadLE32 (SDL_RWops *src)
 
 SDL_PixelFormat *SDL_Surface_get_format(SDL_Surface *surface)
 {
-	return surface->_format;
+	surface->temp_format.BitsPerPixel = surface->_surf->format->BitsPerPixel;
+	surface->temp_format.Rloss = surface->_surf->format->Rloss; 
+	surface->temp_format.Gloss = surface->_surf->format->Gloss; 
+	surface->temp_format.Bloss = surface->_surf->format->Bloss; 
+	surface->temp_format.Aloss = surface->_surf->format->Aloss; 
+	surface->temp_format.Rshift = surface->_surf->format->Rshift;
+	surface->temp_format.Gshift = surface->_surf->format->Gshift;
+	surface->temp_format.Bshift = surface->_surf->format->Bshift;
+	surface->temp_format.Ashift = surface->_surf->format->Ashift;
+	surface->temp_format.Rmask = surface->_surf->format->Rmask;
+	surface->temp_format.Gmask = surface->_surf->format->Gmask;
+	surface->temp_format.Bmask = surface->_surf->format->Bmask;
+	surface->temp_format.Amask = surface->_surf->format->Amask;
+	surface->temp_format.colorkey = surface->_surf->format->colorkey;
+	return &surface->temp_format;
 }
 
 int SDL_Surface_get_w(SDL_Surface *surface)
 {
-	return surface->_w;
+	//return surface->_w;
+	return surface->_surf->w;
 }
 
 int SDL_Surface_get_h(SDL_Surface *surface)
 {
-	return surface->_h;
+	//return surface->_h;
+	return surface->_surf->h;
 }
 
 WORD SDL_Surface_get_pitch(SDL_Surface *surface)
 {
-	return surface->_pitch;
+	//return surface->_pitch;
+	return surface->_surf->pitch;
 }
 
 void *SDL_Surface_get_pixels(SDL_Surface *surface)
 {
-	return surface->_pixels;
+	//return surface->_pixels;
+	return surface->_surf->pixels;
 }
 
 void SDL_Surface_set_format(SDL_Surface *surface, SDL_PixelFormat *format)
 {
-	surface->_format = format;
+	surface->_surf->format->BitsPerPixel = format->BitsPerPixel;
+	surface->_surf->format->Rloss = format->Rloss; 
+	surface->_surf->format->Gloss = format->Gloss; 
+	surface->_surf->format->Bloss = format->Bloss; 
+	surface->_surf->format->Aloss = format->Aloss; 
+	surface->_surf->format->Rshift = format->Rshift;
+	surface->_surf->format->Gshift = format->Gshift;
+	surface->_surf->format->Bshift = format->Bshift;
+	surface->_surf->format->Ashift = format->Ashift;
+	surface->_surf->format->Rmask = format->Rmask;
+	surface->_surf->format->Gmask = format->Gmask;
+	surface->_surf->format->Bmask = format->Bmask;
+	surface->_surf->format->Amask = format->Amask;
+	surface->_surf->format->colorkey = format->colorkey;
 }
 
 void SDL_Surface_set_w(SDL_Surface *surface, int w)
 {
-	surface->_w = w;
+	//surface->_w = w;
+	surface->_surf->w = w;
 }
 
 void SDL_Surface_set_h(SDL_Surface *surface, int h)
 {
-	surface->_h = h;
+	//surface->_h = h;
+	surface->_surf->h = h;
 }
 
 void SDL_Surface_set_pitch(SDL_Surface *surface, WORD pitch)
 {
-	surface->_pitch = pitch;
+	//surface->_pitch = pitch;
+	surface->_surf->pitch = pitch;
 }
 
 void SDL_Surface_set_pixels(SDL_Surface *surface, void *pixels)
 {
-	surface->_pixels = pixels;
+	//surface->_pixels = pixels;
+	surface->_surf->pixels = pixels;
 }
 
 

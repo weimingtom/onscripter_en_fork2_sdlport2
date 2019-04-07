@@ -2,11 +2,12 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "SDL.h"
 #include "SDL_image.h"
 #include "SDLvideo.h"
 
 static const char *s_error;
-void IMG_SetError(char *str)
+void IMG_SetError(const char *str)
 {
 	s_error = str;
 }
@@ -34,6 +35,7 @@ SDL_Surface *IMG_Load_RW(SDL_RWops *src, int freesrc)
     return IMG_LoadTyped_RW(src, freesrc, NULL);
 }
 
+int IMG_isBMP(SDL_RWops *src);
 SDL_Surface *IMG_LoadTyped_RW(SDL_RWops *src, int freesrc, char *type)
 {
 	SDL_Surface *image;

@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <assert.h>
+#include <MSD_video.h>
 
 #ifdef __cplusplus
 extern "C" {

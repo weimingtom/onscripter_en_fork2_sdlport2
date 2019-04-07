@@ -52,7 +52,7 @@ static int __SDL_getEvent(SDL_Event *event, int isRemoved, int notRemovedIndex) 
 			eventp = (eventp + 1) % EVENT_MAX;
 			return(1);
 		} else {
-			if (notRemovedIndex >= 0 && notRemovedIndex < eventc) {
+			if (notRemovedIndex >= 0 && notRemovedIndex < (int)eventc) {
 				*event = events[(eventp + notRemovedIndex) % EVENT_MAX];
 				return(1);
 			} else {
@@ -108,6 +108,8 @@ int SDL_PeepEvents(SDL_Event *events, int numevents, SDL_eventaction action, Uin
 			return 0;
 		}
 	}
+	assert(0);
+	return 0;
 }
 
 //???FIXME:

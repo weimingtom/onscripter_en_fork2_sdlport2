@@ -25,7 +25,7 @@ extern int SDL_main(int argc, char **argv);
 
 int SDL_InitSubSystem(DWORD flags);
 void SDL_Quit(void);
-char *SDL_GetError(void);
+const char *SDL_GetError(void);
 
 //dummy
 #define	SDL_INIT_TIMER 0x00000001
