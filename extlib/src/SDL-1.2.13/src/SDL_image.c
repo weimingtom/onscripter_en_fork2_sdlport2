@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "SDL.h"
 #include "SDL_image.h"
@@ -12,6 +13,7 @@ void IMG_SetError(const char *str)
 	OutputDebugString("IMG_SetError: ");
 	OutputDebugString(str);
 	OutputDebugString("\n");
+	assert(0);
 	s_error = str;
 }
 

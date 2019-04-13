@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <SDL.h>
+#include <assert.h>
 
 static SDL_VideoInfo vinfo;
 
@@ -395,13 +396,39 @@ SDL_RWops * SDL_RWFromMem(void *mem, int size)
 	SDL_RWops * ret = (SDL_RWops *)malloc(sizeof(SDL_RWops));
 	ret->mem = mem;
 	ret->size = size;
+	ret->pos = 0;
 	return ret;
 }
 
 SDL_Surface * SDL_ConvertSurface(SDL_Surface *src, SDL_PixelFormat *fmt, Uint32 flags)
 {
-	assert(0);
-	return NULL;
+	//assert(0);
+	MSD_Surface *result;
+	SDL_Surface *result_;
+	MSD_PixelFormat temp_format;
+	
+	temp_format.palette = NULL; //FIXME:???
+	temp_format.alpha = 255;
+
+	temp_format.BitsPerPixel = fmt->BitsPerPixel;
+	temp_format.Rloss = fmt->Rloss; 
+	temp_format.Gloss = fmt->Gloss; 
+	temp_format.Bloss = fmt->Bloss; 
+	temp_format.Aloss = fmt->Aloss; 
+	temp_format.Rshift = fmt->Rshift;
+	temp_format.Gshift = fmt->Gshift;
+	temp_format.Bshift = fmt->Bshift;
+	temp_format.Ashift = fmt->Ashift;
+	temp_format.Rmask = fmt->Rmask;
+	temp_format.Gmask = fmt->Gmask;
+	temp_format.Bmask = fmt->Bmask;
+	temp_format.Amask = fmt->Amask;
+	temp_format.colorkey = fmt->colorkey;
+
+	result = MSD_ConvertSurface(src->_surf, &temp_format, flags);
+	result_ = (SDL_Surface *)malloc(sizeof(SDL_Surface));
+	result_->_surf = result;
+	return result_;
 }
 
 Uint32 SDL_MapRGBA(const SDL_PixelFormat * const format, const Uint8 r, const Uint8 g, const Uint8 b, const Uint8 a)
@@ -472,6 +499,7 @@ SDL_RWops *SDL_RWFromFile(const char *file, const char *mode)
 		src = (SDL_RWops *)malloc(sizeof(SDL_RWops));
 		src->mem = mem;
 		src->size = (int)size;
+		src->pos = 0;
 	}
 	return src;
 }
@@ -501,6 +529,7 @@ extern int SDL_RWseek(SDL_RWops *stream, long offset, int origin)
 			stream->pos = stream->size + offset;
 		}
 	}
+	assert(0);
 	return -1;
 }
 

@@ -180,6 +180,8 @@ static short cnvsdlkey(WPARAM wp, LPARAM lp) {
 	return winkeytbl[wp & 0xff];
 }
 
+#define IDT_TIMER1 1001
+
 #define TEST_SHOWMEMBMP 0 /*test SDL_DrawMemoryBitmap*/
 void test_init();
 void test_load();
@@ -298,6 +300,15 @@ static LRESULT CALLBACK SdlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 		PostQuitMessage(0);
 		break;
 
+	case WM_TIMER: 
+		switch (wParam) { 
+		case IDT_TIMER1: 
+			//UpdateWindow(__sdl_hWnd);
+			__sdl_videopaint(hWnd, __sdl_vsurf);
+			return 0; 
+		} 
+		break;
+
 	default:
 		return DefWindowProc(hWnd, msg, wParam, lParam);
 	}
@@ -335,6 +346,8 @@ static BOOL sdlinit(void) {
 	UpdateWindow(__sdl_hWnd);
 	__sdl_avail = TRUE;
 	_SDL_Timer_init();
+	
+	SetTimer(__sdl_hWnd, IDT_TIMER1, 500, (TIMERPROC) NULL); /*500ms*/
 	return(SUCCESS);
 }
 
