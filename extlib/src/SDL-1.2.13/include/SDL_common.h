@@ -36,6 +36,11 @@ typedef enum {
 	SDL_LASTERROR
 } SDL_errorcode;
 
+/*for x86*/
+#define SDL_LIL_ENDIAN	1234
+#define SDL_BIG_ENDIAN	4321
+#define SDL_BYTEORDER	SDL_LIL_ENDIAN
+
 #ifdef __cplusplus
 }
 #endif

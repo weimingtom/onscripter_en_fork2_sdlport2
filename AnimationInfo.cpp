@@ -868,8 +868,12 @@ void AnimationInfo::copySurface( SDL_Surface *surface, SDL_Rect *src_rect, SDL_R
 
 void AnimationInfo::fill( Uint8 r, Uint8 g, Uint8 b, Uint8 a )
 {
+	static int _test_time = 0;
+
     if (!image_surface) return;
     
+
+#if 1
     SDL_LockSurface( image_surface );
     ONSBuf *dst_buffer = (ONSBuf *)SDL_Surface_get_pixels(image_surface);
 
@@ -879,6 +883,18 @@ void AnimationInfo::fill( Uint8 r, Uint8 g, Uint8 b, Uint8 a )
     int dst_margin = image_surface->w % 2;
 #else
     Uint32 rgb = (r << RSHIFT) | (g << GSHIFT) | b;
+#if 0
+	/*test code*/
+	int test_time = _test_time;
+	//if (test_time == 4) /*0,1,2,(3),4*/
+	if (0)//if (a == 0)
+	{
+		//test_time == 2 || test_time == 1 || test_time == 0 || test_time == 3 || 
+		rgb = 0xffffff;
+		a = 0xff;
+	}
+	_test_time++;
+#endif
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
     unsigned char *alphap = (unsigned char *)dst_buffer + 3;
@@ -890,10 +906,33 @@ void AnimationInfo::fill( Uint8 r, Uint8 g, Uint8 b, Uint8 a )
 
     for (int i = SDL_Surface_get_h(image_surface) ; i != 0 ; i--) {
         for (int j = SDL_Surface_get_w(image_surface) ; j != 0 ; j--, dst_buffer++)
+#if 1
             SET_PIXEL(rgb, a);
+#else
+			/*test code*/
+			//*dst_buffer=0xffff0000; //SET_PIXEL(rgb, a);
+			{
+				*dst_buffer = rgb;//0x00ffffff;
+				*alphap = a;
+				alphap += 4;
+			}
+#endif
         dst_buffer += dst_margin;
     }
     SDL_UnlockSurface(image_surface);
+
+
+
+	
+
+#else/*test*/
+	if (a != 0) {
+		SDL_FillRect(image_surface, NULL, 0xffff0000);
+	} else {
+		SDL_FillRect(image_surface, NULL, 0x0000ff00);
+		//SDL_FillRect(image_surface, NULL, 0xffff0000);
+	}
+#endif
 }
 
 SDL_Surface *AnimationInfo::setupImageAlpha( SDL_Surface *surface,

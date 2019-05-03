@@ -267,6 +267,7 @@ void __sdl_videopaint(HWND hWnd, SDL_Surface *screen) {
 		MSD_Surface *surf = screen->_surf;
 		if (surf != NULL) {
 			SDL_DrawMemoryBitmap(hWnd, surf->w, surf->h, surf->pixels);
+			//MSD_SaveBMP(surf, "snapshot.bmp");
 		}
 	}
 }
@@ -340,20 +341,30 @@ SDL_Surface *SDL_SetVideoMode(int width, int height, int bpp, DWORD flags) {
 	SDL_FreeSurface(__sdl_vsurf);
 	__sdl_vsurf = SDL_CreateRGBSurface(SDL_HWSURFACE, width, height, bpp, 0, 0, 0, 0);
 	setclientsize(__sdl_hWnd, width, height);
-	return(__sdl_vsurf);
+	return __sdl_vsurf;
 }
 
 int SDL_LockSurface(SDL_Surface *surface) {
-	return 0;
+	return MSD_LockSurface(surface->_surf);
 }
 
 void SDL_UnlockSurface(SDL_Surface *surface) {
+	MSD_UnlockSurface(surface->_surf);
 }
 
 int SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color)
 {
-	assert(0);
-	return 0;
+	//assert(0);
+	MSD_Rect _dstrect;
+	MSD_Rect *p_dstrect = NULL;
+	if (dstrect) {
+		p_dstrect = &_dstrect;
+		p_dstrect->x = dstrect->x;
+		p_dstrect->y = dstrect->y;
+		p_dstrect->w = dstrect->w;
+		p_dstrect->h = dstrect->h;
+	}
+	return MSD_FillRect(dst->_surf, p_dstrect, color);
 }
 
 Uint32 SDL_MapRGB(const SDL_PixelFormat * const format, const Uint8 r, const Uint8 g, const Uint8 b)
@@ -369,6 +380,11 @@ int SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_R
 	MSD_Surface *src_surf = NULL;
 	MSD_Surface *dst_surf = NULL;
 	MSD_Rect *p_srcrect = NULL, *p_dstrect = NULL, _srcrect, _dstrect;
+
+	
+	if (dst == __sdl_vsurf) {
+		OutputDebugString("SDL_BlitSurface to __sdl_vsurf");
+	}	
 	if (src && dst) {
 		src_surf = src->_surf;
 		dst_surf = dst->_surf;
@@ -465,6 +481,7 @@ void SDL_UpdateRect(SDL_Surface *screen, Sint32 x, Sint32 y, Uint32 w, Uint32 h)
 {
 	//TODO:
 	//assert(0);
+	//see WM_TIMER
 }
 
 void SDL_UpdateRects(SDL_Surface *screen, int numrects, SDL_Rect *rects)

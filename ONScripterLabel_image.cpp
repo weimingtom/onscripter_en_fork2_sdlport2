@@ -495,7 +495,12 @@ void ONScripterLabel::refreshSurface( SDL_Surface *surface, SDL_Rect *clip_src, 
     if (clip_src) if ( AnimationInfo::doClipping( &clip, clip_src ) ) return;
 
     int i, top;
-    SDL_BlitSurface( bg_info.image_surface, &clip, surface, &clip );
+    if (0) {
+		SDL_BlitSurface( bg_info.image_surface, &clip, surface, &clip );
+	} else {
+		//???why this work???
+		bg_info.blendOnSurface( surface, 0, 0, clip );
+	}
 
     if ( !all_sprite_hide_flag ){
         if ( z_order < 10 && refresh_mode & REFRESH_SAYA_MODE )
