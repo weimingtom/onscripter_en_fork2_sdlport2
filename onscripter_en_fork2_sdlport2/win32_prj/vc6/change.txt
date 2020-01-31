@@ -1,0 +1,24 @@
+----------------------------
+
++#if 0 //TODO:
+    while (doEffect(el));
++#endif
+
+-----------------------------
+
+if (cmd[0] >= 'a' && cmd[0] <= 'z'){
+    //TODO:
++    char debugstr[256] = {0};
++    sprintf(debugstr, ">>>>>>>> %s\n", cmd); 
++    OutputDebugString(debugstr);
+    
+    
+-----------------------------
+
++#if 1
++	//FIXME:???
++	setStr( &wm_title_string, buf );
++#endif
+
+-----------------------------
+

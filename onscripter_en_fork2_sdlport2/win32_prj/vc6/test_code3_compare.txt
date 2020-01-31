@@ -1,0 +1,121 @@
+    bool has_colorkey = false;
+    Uint32 colorkey = 0;
+
+    if ( has_alpha ){
+        *has_alpha = (SDL_Surface_get_format(tmp)->Amask != 0);
+    }
+
+
+->
+
+    bool has_colorkey = false;
+    Uint32 colorkey = 0;
+
+    if ( has_alpha ){
+        *has_alpha = (tmp->format->Amask != 0);
+        if (!(*has_alpha) && (tmp->flags & SDL_SRCCOLORKEY)){
+            has_colorkey = true;
+            colorkey = tmp->format->colorkey;
+            if (tmp->format->palette){
+                //palette will be converted to RGBA, so don't do colorkey check
+                has_colorkey = false;
+            }
+            *has_alpha = true;
+        }
+    }
+    
+-----------------------------------
+
+    if (0) {
+		SDL_BlitSurface( bg_info.image_surface, &clip, surface, &clip );
+	} else {
+		//???why this work???
+		bg_info.blendOnSurface( surface, 0, 0, clip );
+	}
+	
+->
+
+    if (1) {
+		SDL_BlitSurface( bg_info.image_surface, &clip, surface, &clip );
+	} else {
+		//???why this work???
+		bg_info.blendOnSurface( surface, 0, 0, clip );
+	}
+	
+------------------------------------
+
+int ONScripterLabel::captionCommand()
+{
+    const char* buf = script_h.readStr();
+    size_t len = strlen(buf);
+
+    char *buf2 = new char[len*2+3];
+    char *buf1 = new char[len+1];
+    strcpy(buf1, buf);
+    DirectReader::convertFromSJISToUTF8(buf2, buf1);
+    delete[] buf1;
+
+    setStr( &wm_title_string, buf2 );
+    setStr( &wm_icon_string,  buf2 );
+    delete[] buf2;
+    //printf("caption (utf8): '%s'\n", wm_title_string);
+#if 1
+	//FIXME:???
+	setStr( &wm_title_string, buf );
+#endif
+
+->
+
+int ONScripterLabel::captionCommand()
+{
+    const char* buf = script_h.readStr();
+    size_t len = strlen(buf);
+
+    char *buf2 = new char[len*2+3];
+    char *buf1 = new char[len+1];
+    strcpy(buf1, buf);
+    DirectReader::convertFromSJISToUTF8(buf2, buf1);
+    delete[] buf1;
+
+    setStr( &wm_title_string, buf2 );
+    setStr( &wm_icon_string,  buf2 );
+    delete[] buf2;
+    //printf("caption (utf8): '%s'\n", wm_title_string);
+#if 0
+	//FIXME:???
+	setStr( &wm_title_string, buf );
+#endif
+
+
+-----------------------------------
+
+
+void ONScripterLabel::flushDirect( SDL_Rect &rect, int refresh_mode, bool updaterect )
+{
+	char str[256] = {0};
+    sprintf(str, "flush %d: %d %d %d %d\n", refresh_mode, rect.x, rect.y, rect.w, rect.h );
+	OutputDebugString(str);
+
+	//for simple test msdl implement
+	//FIXME:???
+#if defined(_MSC_VER)
+	rect.x = 0;
+	rect.y = 0;
+	rect.w = 640;
+	rect.h = 480;
+#endif  
+
+
+->
+
+
+void ONScripterLabel::flushDirect( SDL_Rect &rect, int refresh_mode, bool updaterect )
+{
+	char str[256] = {0};
+    sprintf(str, "flush %d: %d %d %d %d\n", refresh_mode, rect.x, rect.y, rect.w, rect.h );
+	OutputDebugString(str);
+	
+	
+----------------------------------------
+
+

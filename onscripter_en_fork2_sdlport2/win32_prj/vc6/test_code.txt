@@ -1,0 +1,138 @@
+﻿IMG_SetError
+
+TEST_SHOWMEMBMP
+TEST_DRAW_DIR
+
+
+
+
+
+
+未解决问题：
+	绘画bg_info图层
+    if (1) {
+		SDL_BlitSurface( bg_info.image_surface, &clip, surface, &clip );
+	} else {
+		//???why this work???
+不知道为什么，用这种方式画才会正常--->		bg_info.blendOnSurface( surface, 0, 0, clip );
+	}
+
+
+
+
+
+
+
+
+
+===================================================================================
+-------------
+__sdl_videopaint(hWnd, __sdl_vsurf);
+MSD_SaveBMP(surf, "snapshot.bmp");
+
+--
+screen_surface ref:
+	SDL_UpdateRects
+	SDL_BlitSurface
+	SDL_UpdateRect
+	SDL_ConvertSurface
+	
+	
+SDL_BlitSurface + SDL_UpdateRect or SDL_UpdateRects
+	== double buffer draw //onscripter通过SDL_BlitSurface和SDL_UpdateRect实现双缓冲绘画
+	~= here use WM_TIMER to emulate it：//暂时先用定时器实现，所以SDL_UpdateRect(s)可以是空实现
+--
+bgCommand(
+
+
+void ONScripterLabel::refreshSurface( SDL_Surface *surface, SDL_Rect *clip_src, int refresh_mode )
+{
+    if (refresh_mode == REFRESH_NONE_MODE) return;
+
+    SDL_Rect clip = {0, 0, surface->w, surface->h};
+    if (clip_src) if ( AnimationInfo::doClipping( &clip, clip_src ) ) return;
+
+    int i, top;
+这里把bg_info（bg命令控制）复制到目标 ---->    SDL_BlitSurface( bg_info.image_surface, &clip, surface, &clip );
+    
+
+----
+
+void ONScripterLabel::flushDirect( SDL_Rect &rect, int refresh_mode, bool updaterect )
+
+----
+
+这个函数模拟SDL_FillRect，但效果不对
+
+void AnimationInfo::fill( Uint8 r, Uint8 g, Uint8 b, Uint8 a )
+{
+    if (!image_surface) return;
+    
+
+#if 0
+    SDL_LockSurface( image_surface );
+    ONSBuf *dst_buffer = (ONSBuf *)SDL_Surface_get_pixels(image_surface);
+
+#ifdef BPP16
+    Uint32 rgb = ((r>>RLOSS) << RSHIFT) | ((g>>GLOSS) << GSHIFT) | (b>>BLOSS);
+    unsigned char *alphap = alpha_buf;
+    int dst_margin = image_surface->w % 2;
+#else
+    Uint32 rgb = (r << RSHIFT) | (g << GSHIFT) | b;
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    unsigned char *alphap = (unsigned char *)dst_buffer + 3;
+#else
+    unsigned char *alphap = (unsigned char *)dst_buffer;
+#endif
+    int dst_margin = 0;
+#endif
+
+    for (int i = SDL_Surface_get_h(image_surface) ; i != 0 ; i--) {
+        for (int j = SDL_Surface_get_w(image_surface) ; j != 0 ; j--, dst_buffer++)
+            SET_PIXEL(rgb, a);
+        dst_buffer += dst_margin;
+    }
+    SDL_UnlockSurface(image_surface);
+
+
+
+	
+
+#else/*test*/
+	SDL_FillRect(image_surface, NULL, 0xffff0000);
+#endif
+
+-----
+这里需要定义SDL_BYTEORDER和SDL_LIL_ENDIAN
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    unsigned char *alphap = (unsigned char *)dst_buffer + 3;
+#else
+    unsigned char *alphap = (unsigned char *)dst_buffer;
+#endif
+
+----
+绘画text_info图层
+
+text_info.blendOnSurface( surface, 0, 0, clip );
+
+参考这段代码，改变text_info的绘画初始化
+#else/*test*/
+	if (a != 0) {
+		SDL_FillRect(image_surface, NULL, 0xffff0000);
+	} else {
+--->		SDL_FillRect(image_surface, NULL, 0x00ff0000);
+		//SDL_FillRect(image_surface, NULL, 0xffff0000);
+	}
+#endif
+
+
+----
+绘画bg_info图层
+    if (1) {
+		SDL_BlitSurface( bg_info.image_surface, &clip, surface, &clip );
+	} else {
+		//???why this work???
+不知道为什么，用这种方式画才会正常--->		bg_info.blendOnSurface( surface, 0, 0, clip );
+	}

@@ -1,0 +1,13 @@
+https://github.com/St4nwYn/RIP/blob/bb02565e47f893e0f7111957ab8d05c237c1139c/Char%20Extraction/treat_image.c
+https://codeload.github.com/shinarit/shin_smallies/zip/ca590162fb13afeb2ef0eabff4e5655dc8a68ae2
+
+
+https://github.com/zephirdeadline/RTFPicture/blob/cc8f94030b09f3cc40de49839092d6be2697984b/pretraitement2.c
+https://github.com/GambitDash/Transport/blob/5585baa68fc1f56310bcd79a09bbfdccfaa61ed7/transport/Tests/SDL/fontblit/sdltest.c
+https://github.com/BackupTheBerlios/freewar-svn/blob/aa1a28f19610dbce12be463d5ccd98f712631bc3/freewar-alpha/utils/create_sprite/create_sprite.cpp
+
+
+https://github.com/puyoai/puyoai/blob/d745695c8ffcfbe08d2affe29ba3ea636e43b7db/src/capture/split_image.cc
+https://github.com/BasFaggingerAuer/ImagePacker/blob/master/src/imgpack.cpp
+
+

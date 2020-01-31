@@ -1,6 +1,0 @@
-<= v3
-* HICON wicon = LoadIcon(GetModuleHandle(NULL), "ONSCRICON"); //MAKEINTRESOURCE(ONSCRICON)
-* useless dsw include path removed
-
-<= v4
-sdl_ttf.c included in onscripter.dsp
